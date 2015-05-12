@@ -1,12 +1,12 @@
 {
   "name": "sql-soar",
   "version": "1.0.0",
-  "description": "A simple relational DB to entity mapper.",
+  "description": "A SQL build and query tool for node.js.",
   "engines": "0.10.21",
   "main": "lib/soar.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/benlue/soar.git"
+    "url": "https://github.com/benlue/sql-soar.git"
   },
   "keywords": [
     "Node.js",
