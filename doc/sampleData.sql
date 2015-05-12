@@ -1,7 +1,7 @@
-INSERT INTO Person (psnID, name) VALUES
-(1, 'John'),
-(2, 'David'),
-(3, 'Stacy');
+INSERT INTO Person (psnID, name, addr) VALUES
+(1, 'John', null),
+(2, 'David', 'Oakland'),
+(3, 'Stacy', null);
 
 INSERT INTO GeoLoc (geID, latitude, longitude) VALUES
 (1, 25.0849444, 121.6986161),

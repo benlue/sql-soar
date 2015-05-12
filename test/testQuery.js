@@ -296,13 +296,20 @@ describe('Test short hand', function()  {
     });
     
     it('update', function(done) {
-        soar.update('Person', {name: 'David Black'}, {psnID: 2}, function(err, data) {
+        var  updData = {
+            name: 'David Black',
+            addr: 'San Fransisco'
+        };
+        soar.update('Person', updData, {psnID: 2}, function(err, data) {
             //console.log( JSON.stringify(data, null, 4) );
             
             soar.query('Person', {psnID: 2}, function(err, data) {
                 assert.equal(data.name, 'David Black', 'full name changed to David Black');
+                assert.equal(data.addr, 'San Fransisco', 'address is San Fransisco');
                 
-                soar.update('Person', {name: 'David'}, {psnID: 2}, function(err, data) {
+                updData.name = 'David';
+                updData.addr = null;
+                soar.update('Person', updData, {psnID: 2}, function(err, data) {
                     done();
                 });
             });
