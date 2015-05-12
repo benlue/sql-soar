@@ -89,9 +89,9 @@ Inserting a new entry to a table can be done in a similar fashion:
     
 so as "delete":
 
-    soar.delete('Person', {age: 18}, callback);
+    soar.del('Person', {age: 18}, callback);
 
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section.
+As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section about [_execute()_](#soarExecute).
 
 ## Installation
 
@@ -526,7 +526,7 @@ Sometimes dumping SQLs of every database query could be overwhelming. You can ch
     var  cmd = {
             op: 'list',
             expr: expr,
-            debug: true    // this will print out SQL
+            debug: true    // set to 'true' will print out SQL
          };
          
     soar.execute(cmd, query, cb);
