@@ -100,6 +100,23 @@ describe('Test sql expression', function()  {
             done();
         });
     });
+    
+    it('List -- pagination', function(done) {
+        var  expr = soar.sql('Person');
+
+        var  option = {
+            op: 'list',
+            expr: expr,
+            range: soar.range(1, 2)
+        };
+
+        soar.execute(option, function(err, list, count) {
+            //console.log( JSON.stringify(list, null, 4) );
+            assert.equal( count, 3, 'Totally 3 persons.');
+            assert.equal( list.length, 2, 'page size is 2.');
+            done();
+        });
+    });
 
     it('Update', function(done) {
         var  stemp = soar.sqlTemplate('Person'),
@@ -308,7 +325,7 @@ describe('Test short hand', function()  {
                 assert.equal(data.addr, 'San Fransisco', 'address is San Fransisco');
                 
                 updData.name = 'David';
-                updData.addr = null;
+                updData.addr = 'Oakland';
                 soar.update('Person', updData, {psnID: 2}, function(err, data) {
                     done();
                 });
