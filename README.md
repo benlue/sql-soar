@@ -423,7 +423,7 @@ Doing transaction is faily simple. All you need to do is to obtain a database co
 
 Example:
 
-    var  expr = soar.sql('Perons');
+    var  expr = soar.sql('Person');
     
     soar.getConnection( function(err, conn) {
         // remember to specify database connection in 'cmd'
