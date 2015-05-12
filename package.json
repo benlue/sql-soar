@@ -1,0 +1,26 @@
+{
+  "name": "sql-soar",
+  "version": "0.1.0",
+  "description": "A simple relational DB to entity mapper.",
+  "engines": "0.10.21",
+  "main": "lib/soar.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benlue/soar.git"
+  },
+  "keywords": [
+    "Node.js",
+    "COIMOTION",
+    "ORM",
+    "mySQL",
+    "sql"
+  ],
+  "author": {
+    "name": "Ben Lue, Gocharm Inc."
+  },
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "mysql": "^2.6.2"
+  }
+}
