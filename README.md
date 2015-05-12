@@ -461,13 +461,13 @@ Besides accessing data, you can also use **soar** to manage table schema.
 
 <a name="createTable"></a>
 ### createTable(schema, cb)
-This function will create a database table. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when table creation is successful or erred.
+This function will create a database table. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when table creation is successful or erred.
 
 If you want to call _createTable()_ with a specific database conection object, you can do _createTable(conn, schema, cb)_.
 
 <a name="alterTable"></a>
 ### alterTable(schema, cb)
-This function can be used to alter table schema. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when altering table is successfully done or erred.
+This function can be used to alter table schema. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when altering table is successfully done or erred.
 
 If you want to call _alterTable()_ with a specific database conection object, you can do _alterTable(conn, schema, cb)_.
 
@@ -479,7 +479,7 @@ If you want to call _deleteTable()_ with a specific database conection object, y
 
 <a name="describeTable"></a>
 ### describeTable(tableName, cb)
-This function can be used to derive schema from an existing table. _tableName_ is the name of the table to be derived. _cb(err, schema)_ is the callback function to return the derived schema. The returned schema object is the same as the **schema notation** as described in [this document](https://github.com/benlue/soar/blob/master/doc/SchemaNotation.md).
+This function can be used to derive schema from an existing table. _tableName_ is the name of the table to be derived. _cb(err, schema)_ is the callback function to return the derived schema. The returned schema object is the same as the **schema notation** as described in [this document](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md).
 
 If you want to call _describeTable()_ with a specific database conection object, you can do _describeTable(conn, schema, cb)_.
 
