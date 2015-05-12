@@ -2,18 +2,20 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-SOAR (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, SOAR gives back to developers the full control of how SQL statements are generated. SOAR has the following interesting features:
+SOAR (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. SO**soar**AR has the following interesting features:
 
 + Reusable: you can formulate a SQL statement into an expression. You can later invoke that SQL expression with various query conditions.
 
-+ Less tedious: you don't have to hand code the sql WHERE clause any more. Just specify the query values and SOAR will do the tedious works for you.
++ Simple and elegant: you don't have to hand code the sql WHERE clause any more. Just specify the query values and **soar** will do the tedious works for you.
 
-+ Multiple database access: it's very easy to access multiple databases within an application with SOAR.
++ Multiple database access: it's very easy to access multiple databases within an application with **soar**.
+
++ Schema manipulation: you can define a table schema using JSON notations, and you can easily manipulate table schemas.
 
 + Full control: unlike most ORM solutions, you have full control of how SQL is generated and applied.
 
 ## For SOARJS Developers
-Except for "data view" (table schema representd in XML format) supprot, sql-soar is mostly compatible with the soarjs module. Very likely you can replace soarjs with sql-soar and your application will run without glitches. However, sql-soar has a cleaner API and more developer friendly features, so soarjs developers are encourged to switch.
+Except for "data view" (table schema representd in XML format) supprot, sql-soar is mostly compatible with the "soarjs" module. Very likely you can replace "soarjs" with "sql-soar" and your application will run without glitches. However, "sql-soar" has a even cleaner API and more developer friendly features, so "soarjs" developers are encourged to switch.
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide
@@ -33,7 +35,7 @@ First of all, you have to config **soar** so it knows how to talk with the datab
 
 where "connectionLimit" specifies how many connections will be created and buffered in the connection pool.
 
-That's all you need to do for setup. Now assuming you have a table called 'Person' and you want to find out all persons with age equal to 25. Below is how you can do with SOAR:
+That's all you need to do for setup. Now assuming you have a table called 'Person' and you want to find out all persons with age equal to 25 in that table. Below is how you can do with **soar**:
 
     soar.list('Person', {age: 25}, function(err, list) {
         // 'list' will contain persons whose age is 25.
@@ -89,7 +91,7 @@ so as "delete":
 
     soar.delete('Person', {age: 18}, callback);
 
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a very complicated query conditions, do a join query or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and too sophisticated for this 5 minutes guid. If you're interested, please refer to the API section.
+As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section.
 
 ## Installation
 
@@ -101,17 +103,17 @@ As you can see the CRUD (create, read, update and delete) operations can be done
   + [config.json file](#config)
   + [configure programmatically](#configProg)
   + [Multiple database configuration](#multidb)
-+ [Access database](#accessDB)
-  + [Access with SQL templates](#dynamicSQL)
-  + [API](#dynamicAPI)
-    + [soar.execute()](#soarExecute)
-    + [soar.sqlTemplate()](#soarSBI)
-    + [sqlTemplate.join()](#sbiJoin)
-    + [sqlTemplate.column()](#sbiColumn)
-    + [sqlTemplate.filter()](#sbiFilter)
-    + [sqlTemplate.chainFilters()](#sbiChainFilter)
-    + [sqlTemplate.extra()](#sbiExtra)
-  + [Use cases](#dynamicCase)
++ [SQL Expressions](#accessDB)
++ [API](#dynamicAPI)
+  + [APIs related to SQL expressions](#sqlExprAPI)
+    + [soar.sql()](#soarSBI)
+    + [expr.join()](#sbiJoin)
+    + [expr.column()](#sbiColumn)
+    + [expr.filter()](#sbiFilter)
+    + [soar.chainFilters()](#sbiChainFilter)
+    + [expr.extra()](#sbiExtra)
+  + [APIs related to data manipulation](#crudAPI)
+    + [execute()](#soarExecute)
     + [query](#dynamicQuery)
     + [list](#dynamicList)
     + [insert](#dynamicInsert)
