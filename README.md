@@ -2,7 +2,7 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-SOAR (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. SO**soar**AR has the following interesting features:
+SOAR (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
 
 + Reusable: you can formulate a SQL statement into an expression. You can later invoke that SQL expression with various query conditions.
 
