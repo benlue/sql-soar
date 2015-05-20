@@ -1,6 +1,6 @@
 # Query Object
 
-Specifying query conditions of database actions (query, update or delete) is the place where we can easily introduce bugs to our programs. In this short article, a more expressive while less error-prone presentation of query conditions is described.
+Specifying query conditions of certain database actions (query, update or delete) is the place where we can easily introduce bugs to our programs. In this short article, a more expressive while less error-prone presentation of query conditions is described.
 
 ## The column-value pair
 A query object is a JSON object containing query values. Its basic format is an object of column-value pairs which can make up the WHERE clause of a SQL statement. Considering the query object below:
@@ -24,7 +24,7 @@ the WHERE clause will become:
 
     WHERE zipcode = '94604' AND rooms = 3
     
-That seems to be good, but what if we need comparators other than '=' (equal) ? The format can be extended a bit so we can specify needed operators as shown below:
+That looks okay, but what if we need comparators other than '=' (equal) ? The format can be extended a bit so we can specify needed operators as shown below:
 
     {colName: {op: 'the_comparator', value: x}}
     
@@ -35,7 +35,7 @@ Assuming we want to query houses having more than 3 bedrooms in a specific area,
       rooms: {op: '>', value: 3}
     }
     
-If you need to "OR" properties instead of "AND", you just need to specify 'or' as the property key and a query object as its value:
+If you need to "OR" properties instead of "AND", you just need to specify 'or' as the property name and a query object as its value:
 
     {
       or: a_query_object
@@ -50,7 +50,7 @@ For example, if you want to query houses costing less than $400,000 or having on
       }
     }
     
-Pretty smart, isn't it? Up to this point, you probably have already known how to make compounded queries. You jsut have to specify 'or' or 'and' as the property name with yet another query object as the property value. Check this example:
+Pretty simple, isn't it? Up to this point, you probably have already known how to make compounded queries. You just have to specify 'or' or 'and' as the property name with yet another query object as the property value. Check this example:
 
     {
       and: {
@@ -80,4 +80,4 @@ We can even make that query object more concise:
 As logic "AND" is the default behavior when a query object has multiple properties.
 
 ## Implementations
-[sql-soar]() and [newsql]() allow developers using query objects to specify query conditions.
+[sql-soar](https://github.com/benlue/sql-soar) and [newsql](https://github.com/benlue/newsql) are two known implementations allowing developers using query objects to specify query conditions.
