@@ -3,7 +3,7 @@
 
 + Supported query objects as a way of specifying query conditions.
 
-+ Added a document to describe what is a query object.
++ Added a [document](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to describe what is a query object.
 
 1.0.2
 =====

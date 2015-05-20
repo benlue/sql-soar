@@ -404,7 +404,7 @@ Example:
         // it's the person who is weighted more than 160 and older than 25 
     });
  
-**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
 
 <a name="dynamicList"></a>    
 #### soar.list(tbName, query, cb)
@@ -426,7 +426,7 @@ Example:
         // who is weighted more than 160 and older than 25 
     });
 
-**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
 
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
@@ -449,7 +449,7 @@ Example:
 
     soar.update('Person', {name: 'John Mayer'}, {psnID: 1}, cb);
 
-**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
 
 <a name="dynamicDelete"></a>    
 #### soar.del(tbName, query, cb)
@@ -459,7 +459,7 @@ Example:
 
     soar.del('Person', {psnID: 1}, cb);
     
-**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
 
 <a name="transaction"></a>    
 #### How to do transactions
