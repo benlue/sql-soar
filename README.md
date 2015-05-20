@@ -15,7 +15,7 @@ SQL-SOAR
 + Full control: unlike most ORM solutions, you have full control of how SQL is generated and applied.
 
 ## What is NOT SOAR
-**soar** is NOT an ORM implementation. It will not try to figure out how your tables are associated. It will not retrieve or populate the referenced data for you and it will not try to change your database schema.
+**soar** is NOT an ORM implementation. It will not try to figure out how your tables are associated. It will not retrieve or populate referenced data for you and it will not try to change your database schema.
 
 Building a tool to help developrs making better decisons seems to be better than building a tool to make decisions for developers. That's how **soar** is different from ORM solutions.
 
