@@ -2,17 +2,23 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-SOAR (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of SQL statement generation. **soar** has the following interesting features:
 
-+ Reusable: you can formulate a SQL statement into an expression. You can later invoke that SQL expression with various query conditions.
++ Reusable SQL: you can formulate a SQL statement into an expression. You can later invoke and reuse that SQL expression with various query conditions.
 
 + Simple and elegant: you don't have to hand code the sql WHERE clause any more. Just specify the query values and **soar** will do the tedious works for you.
 
 + Multiple database access: it's very easy to access multiple databases within an application with **soar**.
 
-+ Schema manipulation: you can define a table schema using JSON notations, and you can easily manipulate table schemas.
++ Schema manipulation: you can define a table schema using JSON as the notation, and you can easily manipulate table schemas.
 
 + Full control: unlike most ORM solutions, you have full control of how SQL is generated and applied.
+
+## What is NOT SOAR
+**soar** is NOT an ORM implementation. It will not try to figure out how your tables are associated. It will not retrieve or populate the referenced data for you and it will not try to change your database schema.
+
+Building a tool to help developrs making better decisons seems to be better than building a tool to make decisions for developers. That's how **soar** is different from ORM solutions.
+
 
 ## For SOARJS Developers
 Except for "data view" (table schema representd in XML format) supprot, sql-soar is mostly compatible with the "soarjs" module. Very likely you can replace "soarjs" with "sql-soar" and your application will run without glitches. However, "sql-soar" has a even cleaner API and more developer friendly features, so "soarjs" developers are encourged to switch.
@@ -397,7 +403,9 @@ Example:
         // if data is not null,
         // it's the person who is weighted more than 160 and older than 25 
     });
-    
+ 
+**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+
 <a name="dynamicList"></a>    
 #### soar.list(tbName, query, cb)
 
@@ -417,6 +425,8 @@ Example:
         // 'list' will contain people
         // who is weighted more than 160 and older than 25 
     });
+
+**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
 
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
@@ -439,6 +449,8 @@ Example:
 
     soar.update('Person', {name: 'John Mayer'}, {psnID: 1}, cb);
 
+**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+
 <a name="dynamicDelete"></a>    
 #### soar.del(tbName, query, cb)
 Deleting entries from a table. 'query' specifies which entries will be deleted.
@@ -447,6 +459,8 @@ Example:
 
     soar.del('Person', {psnID: 1}, cb);
     
+**query** is a query object specifying query conditions. Please refer to this [short article]() to see how to use query objects effectively.
+
 <a name="transaction"></a>    
 #### How to do transactions
 Doing transaction is faily simple. All you need to do is to obtain a database connection and set it to the soar command. However, only the soar.execute() funciton supprots transactions. You can not apply transactions to soar.query(), soar.list(), soar.update(), soar.insert() and soar.del().

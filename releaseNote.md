@@ -1,7 +1,14 @@
+1.0.3
+=====
+
++ Supported query objects as a way of specifying query conditions.
+
++ Added a document to describe what is a query object.
+
 1.0.2
 =====
 
-+ Supported pagination. Besides return a pageload of data, **soar** will also return the total count of the query.
++ Pagination supported. Besides returning a page-load of data, **soar** will also return the total count of the query.
 
 1.0.1
 =====
