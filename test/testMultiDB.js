@@ -74,7 +74,7 @@ describe('Access multiple databases', function()  {
                  expr: expr
              };
         soar.execute(cmd, null, function(err, list) {
-            assert.equal( list.length, 3, 'Should have 3 persons.');
+            assert.equal( list.length, 5, 'Should have 5 persons.');
 
             expr = soar.sql('soar2.Person')
                        .filter( {name: 'psnID', op: '='} );

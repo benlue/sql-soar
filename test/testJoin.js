@@ -17,12 +17,12 @@ before(function() {
 describe('Test table joins', function()  {
 
     it('Simple join', function(done) {
-    	var  expr = soar.sqlTemplate('Person AS psn')
-    					 .join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
-    					 .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
-    					 .column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
-    					 .filter({name: 'psn.psnID', op: '='})
-    					 .value(),
+    	var  expr = soar.sql('Person AS psn')
+    					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
+    					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
+    					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
+    					.filter({name: 'psn.psnID', op: '='})
+    					.value(),
     		 cmd = {
     		 	op: 'query',
     		 	expr: expr
@@ -39,14 +39,14 @@ describe('Test table joins', function()  {
     });
 
     it('join with auto fill', function(done) {
-        var  stemp = soar.sqlTemplate('Person AS psn')
-                         .join({table: 'PsnLoc As pl', onWhat: 'psn.psnID=pl.psnID'})
-                         .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
-                         .column(['psn.name', 'geo.latitude']);
+        var  expr = soar.sql('Person AS psn')
+                        .join({table: 'PsnLoc As pl', onWhat: 'psn.psnID=pl.psnID'})
+                        .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
+                        .column(['psn.name', 'geo.latitude']);
 
         var  cmd = {
                 op: 'list',
-                expr: stemp.value()
+                expr: expr.value()
              };
 
         soar.execute(cmd, function(err, list) {

@@ -96,7 +96,7 @@ describe('Test sql expression', function()  {
 
         soar.execute(option, function(err, list) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( list.length, 3, 'Totally 3 persons.');
+            assert.equal( list.length, 5, 'Totally 5 persons.');
             done();
         });
     });
@@ -112,7 +112,7 @@ describe('Test sql expression', function()  {
 
         soar.execute(option, function(err, list, count) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( count, 3, 'Totally 3 persons.');
+            assert.equal( count, 5, 'Totally 5 persons.');
             assert.equal( list.length, 2, 'page size is 2.');
             done();
         });
@@ -286,7 +286,7 @@ describe('Test short hand', function()  {
     
     it('list', function(done) {
         soar.list('Person', {psnID: {op: '>=', value: 2}}, function(err, list) {
-            assert.equal(list.length, 2, '2 matches');
+            assert.equal(list.length, 4, '4 matches');
             done();
         });
     });
@@ -307,7 +307,7 @@ describe('Test short hand', function()  {
                 addr: {op: 'IS NULL', value: true}
              };
         soar.list('Person', query, function(err, list) {
-            assert.equal(list.length, 2, '2 matches.');
+            assert.equal(list.length, 4, '4 matches.');
             done();
         });
     });

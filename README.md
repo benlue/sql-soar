@@ -21,7 +21,7 @@ Building a tool to help developrs making better decisons seems to be better than
 
 
 ## For SOARJS Developers
-Except for "data view" (table schema representd in XML format) supprot, sql-soar is mostly compatible with the "soarjs" module. Very likely you can replace "soarjs" with "sql-soar" and your application will run without glitches. However, "sql-soar" has a even cleaner API and more developer friendly features, so "soarjs" developers are encourged to switch.
+Except for "data view" (table schema representd in XML format) support, sql-soar is mostly compatible with the "soarjs" module. Very likely you can replace "soarjs" with "sql-soar" and your application will run without glitches. However, "sql-soar" has a even cleaner API and more developer friendly features, so "soarjs" developers are encourged to switch.
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide
@@ -430,7 +430,7 @@ Example:
 
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
-Inserting a new entry to a table. 'data' is the data to be inserted.
+Inserting a new entry to a table. 'data' is the data to be inserted. If 'data' contains properties which do not match to table columns, those properties will be ignored.
 
 Example:
 
@@ -443,13 +443,11 @@ Example:
 
 <a name="dynamicUpdate"></a>    
 #### soar.update(tbName, data, query, cb)
-Updating data entries in a table. 'data' is the new data. 'query' specifies which entries will be updated.
+Updating data entries in a table. 'data' is the new data. 'query' specifies which entries will be updated. The 'query' parameter is used to specify query conditions (the WHERE clause in a SQL statement). To explore the full power of query objects, Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md).
 
 Example:
 
     soar.update('Person', {name: 'John Mayer'}, {psnID: 1}, cb);
-
-**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
 
 <a name="dynamicDelete"></a>    
 #### soar.del(tbName, query, cb)

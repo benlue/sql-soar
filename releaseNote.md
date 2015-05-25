@@ -1,3 +1,8 @@
+1.0.4
+=====
+
++ When table columns are not specified in the update or delete operations, the prvious version could inlucde not updated columns and try to set their values to "undefined". This bug has been fixed.
+
 1.0.3
 =====
 

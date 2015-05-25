@@ -27,7 +27,7 @@ describe('Test configuration and settings', function()  {
              
         soar.execute(cmd, function(err, list) {
             assert.ifError( err );
-            assert.equal(list.length, 3, 'We have three samples.');
+            assert.equal(list.length, 5, 'We have 5 samples.');
             done();
         });
     });
@@ -76,7 +76,7 @@ describe('Test configuration and settings', function()  {
              
         soar.execute(cmd, function(err, list) {
             assert.ifError( err );
-            assert.equal(list.length, 3, 'We have three samples.');
+            assert.equal(list.length, 5, 'We have 5 samples.');
             done();
         });
     });
