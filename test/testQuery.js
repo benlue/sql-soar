@@ -173,7 +173,7 @@ describe('Test sql expression', function()  {
                     done();
                 });
             });
-        })
+        });
     });
 
     it('Update without specifying table columns and query conditions', function(done) {
@@ -262,6 +262,72 @@ describe('Test sql expression', function()  {
                         });
                     });
                 })
+            });
+        });
+    });
+    
+    it('Use join expression to do insert & delete', function(done) {
+    	var  expr = soar.sql('Person AS psn')
+    					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
+    					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
+    					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
+    					.filter({name: 'psn.psnID', op: '='});
+
+    	soar.getConnection( function(err, conn) {
+            conn.beginTransaction(function(err) {
+                assert(!err, 'Transaction failed to get started.');
+
+                var  cmd = {
+                        op: 'insert',
+                        expr: expr,
+                        conn: conn
+                     },
+                     data = {name: 'Scott Cooper'};
+
+                soar.execute(cmd, data, null, function(err, value) {
+                    //console.log('inserted key is\n%s', JSON.stringify(value));
+                    assert(value, 'Failed to insert');
+
+                    cmd.op = 'delete';
+                    soar.execute(cmd, value, function(err) {
+                        assert(!err, 'Failed to delete.');
+                        conn.commit( function(err) {
+                            assert(!err, 'Transaction failed to commit.');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+    
+    it('Use join expression to do update', function(done) {
+    	var  expr = soar.sql('Person AS psn')
+    					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
+    					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
+    					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
+    					.filter({name: 'psn.psnID', op: '='});
+
+    	var  option = {
+                op: 'update',
+                expr: expr
+             },
+             data = {name: 'John Mayer'},
+             query = {psnID: 1};
+
+        soar.execute(option, data, query, function(err) {
+            assert(!err, 'Failed to do update.');
+
+            option.op = 'query';
+            soar.execute(option, query, function(err, data) {
+                assert.equal( data.name, 'John Mayer', 'Person name not matched.');
+
+                // restore data
+                option.op = 'update';
+                soar.execute(option, {name: 'John'}, query, function(err) {
+                    assert(!err, 'Failed to do update.');
+                    done();
+                });
             });
         });
     });

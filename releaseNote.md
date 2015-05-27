@@ -1,3 +1,10 @@
+1.0.5
+=====
+
++ Allowing SQL expression built for table joins can be applied to insert, update and delete as well.
+
++ Added test cases to verify the new feature.
+
 1.0.4
 =====
 
