@@ -1,3 +1,10 @@
+1.1.0
+=====
+
++ If you use SQL expressions to do query, part of the generated SQL statements will be cached to give better performance.
+
++ When you do pagination, total of 2 queries will be issued: one to retrieve the actual data and the other one to get the total count. In the new release, the total count of a query will be cached for future use. You can force sql-soar to renew the count by setting "refresh" to ture in the soar command.
+
 1.0.5
 =====
 

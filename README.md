@@ -339,7 +339,9 @@ Example:
 <a name="soarExecute"></a>
 #### soar.execute(cmd, data, query, cb)
 
-This function can be used to execute SQL queries (query, list, insert, update and delete). The **_data_** parameter is a JSON object which contains data to be inserted or updated to a table entry. The **_query_** parameter is a JSON object which specifies the actual query values. The **_cmd_** parameter is a command to **soar** and it has the following properties:
+This function can be used to execute SQL queries (query, list, insert, update and delete). The **_data_** parameter is a JSON object which contains data to be inserted or updated to a table entry. The **_query_** parameter is a JSON object which specifies the actual query values. It should be noted the **query** parameter here should just be plain column-value pairs. The [query object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) format is not applicable here.
+
+The **_cmd_** parameter is a command to **soar** and it has the following properties:
 
 + op: should be one of the following: 'query', 'list', 'insert', 'update' and 'delete'.
 
