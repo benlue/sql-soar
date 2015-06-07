@@ -1,7 +1,7 @@
 1.1.1
 =====
 
-+ Fixed a bug which would cause "date" object unable to be written to db tables.
++ Fixed a bug which would cause "date" objects unable to be written to db tables.
 
 1.1.0
 =====
