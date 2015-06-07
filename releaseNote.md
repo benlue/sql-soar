@@ -1,3 +1,8 @@
+1.1.1
+=====
+
++ Fixed a bug which cause "date" object unable to be written to db tables.
+
 1.1.0
 =====
 

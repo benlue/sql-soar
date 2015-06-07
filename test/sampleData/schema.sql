@@ -1,9 +1,10 @@
 CREATE TABLE Person
 (
-    psnID   bigint not null auto_increment,
-    name    varchar(64),
-    addr    varchar(256),
-    dob     date,
+    psnID         bigint not null auto_increment,
+    name          varchar(64),
+    addr          varchar(256),
+    dob           date,
+    modifyTime    datetime,
     primary key (psnID)
 )
 engine = InnoDB;

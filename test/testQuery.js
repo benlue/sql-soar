@@ -177,24 +177,27 @@ describe('Test sql expression', function()  {
     });
 
     it('Update without specifying table columns and query conditions', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             option = {
+        var  expr = soar.sql('Person'),
+             cmd = {
                 op: 'update',
-                expr: stemp.value()
+                expr: expr
              },
-             data = {name: 'John Mayer'},
+             now = new Date(),
+             data = {name: 'John Mayer', modifyTime: new Date()},
              query = {psnID: 1};
 
-        soar.execute(option, data, query, function(err) {
+        soar.execute(cmd, data, query, function(err) {
             assert(!err, 'Failed to do update.');
 
-            option.op = 'query';
-            soar.execute(option, query, function(err, data) {
+            cmd.op = 'query';
+            soar.execute(cmd, query, function(err, data) {
+                var  mdTime = data.modifyTime;
                 assert.equal( data.name, 'John Mayer', 'Person name not matched.');
+                assert.equal( now.getSeconds(), mdTime.getSeconds(), 'modify time does not match');
 
                 // restore data
-                option.op = 'update';
-                soar.execute(option, {name: 'John'}, query, function(err) {
+                cmd.op = 'update';
+                soar.execute(cmd, {name: 'John'}, query, function(err) {
                     assert(!err, 'Failed to do update.');
                     done();
                 });
@@ -248,7 +251,7 @@ describe('Test sql expression', function()  {
                         expr: expr,
                         conn: conn
                      },
-                     data = {name: 'Scott Cooper'};
+                     data = {name: 'Scott Cooper', dob: new Date()};
 
                 soar.execute(option, data, null, function(err, value) {
                     assert(value, 'Failed to insert');
