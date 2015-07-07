@@ -2,7 +2,7 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-**SOAR** (Simple Object Adapter for Relational database) is a light-weight tool to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Not like most ORM solutions, **soar** gives back to developers the full control of SQL statement generation. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Unlike most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
 
 + Reusable SQL: you can formulate a SQL statement into an expression. You can later invoke and reuse that SQL expression with various query conditions.
 
@@ -17,7 +17,7 @@ SQL-SOAR
 ## What is NOT SOAR
 **soar** is NOT an ORM implementation. It will not try to figure out how your tables are associated. It will not retrieve or populate referenced data for you and it will not try to change your database schema.
 
-Building a tool to help developrs making better decisons seems to be better than building a tool to make decisions for developers. That's how **soar** is different from ORM solutions.
+The idea is to create a tool for developrs to make better decisions than to allow tools making decisions for developers. That's how **soar** is different from ORM solutions.
 
 
 ## For SOARJS Developers
@@ -124,7 +124,8 @@ As you can see the CRUD (create, read, update and delete) operations can be done
     + [list()](#dynamicList)
     + [insert()](#dynamicInsert)
     + [update()](#dynamicUpdate)
-    + [delete()](#dynamicDelete)
+    + [del()](#dynamicDelete)
+    + [runSql()](#runsql)
     + [How to do transactions](#transaction)
 + [Schema management](#schema)
   + [createTable()](#createTable)
@@ -460,6 +461,26 @@ Example:
     soar.del('Person', {psnID: 1}, cb);
     
 **query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
+
+<a name="runsql"></a>    
+#### soar.runSql(conn, sql, parameters, cb)
+This function can be used to run SQL statements directly. Even though SOAR provides quite a few handy functions to access databases, sometimes you may still need to manually build a SQL statement and execute it.
+In such cases, you can use this function.
+
+The _conn_ argument is the database connection. It's optional. You'll pass in a connecton argument mostly because you want to do transactions.
+The _sql_ argument is the SQL statement to be executed, and _parameters_ are data to be filled into the SQL statement (if the given SQL statement is a prepared statement).
+Finally _cb_ is the callback function.
+
+Example:
+
+    soar.runSql('SELECT * FROM Person WHERE psnID=?',
+                [101],
+                function(err, result)  {});
+                
+    /* execute a SQL statement without parameters */
+    soar.runSQL('SELECT * FROM Person', null, function(err, result) {
+        // do something in the callback
+    }); 
 
 <a name="transaction"></a>    
 #### How to do transactions

@@ -1,3 +1,8 @@
+1.1.2
+=====
+
++ Added the runSql() method to run SQL statements directly when necessary.
+
 1.1.1
 =====
 
