@@ -2,7 +2,7 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-coding tasks. Unlike most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
 
 + Reusable SQL: you can formulate a SQL statement into an expression. You can later invoke and reuse that SQL expression with various query conditions.
 

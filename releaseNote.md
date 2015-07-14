@@ -1,3 +1,8 @@
+1.1.3
+=====
+
++ Bug fix of the runSql() method. If no database connections or database names are given, the previous version would fail to execute.
+
 1.1.2
 =====
 
