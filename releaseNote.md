@@ -1,3 +1,10 @@
+1.1.4
+=====
+
++ Support the IN clause.
+
++ Rewrite the testQuery test case with the new syntax.
+
 1.1.3
 =====
 

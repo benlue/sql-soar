@@ -14,14 +14,10 @@ SQL-SOAR
 
 + Full control: unlike most ORM solutions, you have full control of how SQL is generated and applied.
 
-## What is NOT SOAR
-**soar** is NOT an ORM implementation. It will not try to figure out how your tables are associated. It will not retrieve or populate referenced data for you and it will not try to change your database schema.
+## What's New
+You can find detailed information in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
 
-The idea is to create a tool for developrs to make better decisions than to allow tools making decisions for developers. That's how **soar** is different from ORM solutions.
-
-
-## For SOARJS Developers
-Except for "data view" (table schema representd in XML format) support, sql-soar is mostly compatible with the "soarjs" module. Very likely you can replace "soarjs" with "sql-soar" and your application will run without glitches. However, "sql-soar" has a even cleaner API and more developer friendly features, so "soarjs" developers are encourged to switch.
++ Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily.
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide
@@ -60,7 +56,7 @@ If you're sure your query result should have at most one entity, you may conside
             console.log('About David: %s', JSON.stringify(data));
     });
 
-So the signature of the querying calls is as below:
+So the signatures of the querying calls can be summarized as below:
 
     soar.query('table_name', query, callback);
     soar.list('table_name', query, callback);
@@ -97,7 +93,7 @@ so as "delete":
 
     soar.del('Person', {age: 18}, callback);
 
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section about [_execute()_](#soarExecute).
+As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section about [_execute()_](#soarExecute).
 
 ## Installation
 
@@ -407,7 +403,7 @@ Example:
         // it's the person who is weighted more than 160 and older than 25 
     });
  
-**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to use query objects effectively.
 
 <a name="dynamicList"></a>    
 #### soar.list(tbName, query, cb)
@@ -429,7 +425,20 @@ Example:
         // who is weighted more than 160 and older than 25 
     });
 
-**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to use query objects effectively.
+
+<a name="inClause"></a>   
+##### List with the IN clause
+It's possible to use IN in the where clause with **soar**, but it has to be done with the more sophisticaed _execute()_ function. Below is how it can be done:
+
+    var  expr = soar.sql('Person')
+                    .filter({name: 'psnID', op: 'IN'});
+
+    var  cmd = {op: 'list', expr: expr},
+         quer = {psnID: [7, 29, 33]};                    
+    soar.execute(cmd, query, function(err, list)  {
+        // list will contain people whose id is 7, 29 or 33
+    });
 
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
@@ -460,7 +469,7 @@ Example:
 
     soar.del('Person', {psnID: 1}, cb);
     
-**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) to see how to use query objects effectively.
+**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to use query objects effectively.
 
 <a name="runsql"></a>    
 #### soar.runSql(conn, sql, parameters, cb)

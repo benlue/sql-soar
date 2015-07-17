@@ -16,10 +16,11 @@ before(function() {
 
 
 describe('Test sql expression', function()  {
+
     it('Simple query', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.column(['psnID', 'name'])
-                         .filter( {name: 'psnID', op: '='} );
+        var  expr = soar.sql('Person')
+                        .column(['psnID', 'name'])
+                        .filter( {name: 'psnID', op: '='} );
 
         var  option = {
                 op: 'query',
@@ -35,10 +36,9 @@ describe('Test sql expression', function()  {
     });
 
     it('Simple query with alias', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.column(['psnID', 'name AS fullName'])
-                         .filter( {name: 'psnID', op: '='} )
-                         .value();
+        var  expr = soar.sql('Person')
+                        .column(['psnID', 'name AS fullName'])
+                        .filter( {name: 'psnID', op: '='} );
 
         var  option = {
                 op: 'query',
@@ -54,8 +54,8 @@ describe('Test sql expression', function()  {
     });
 
     it('Query without specifying table columns', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.filter( {name: 'psnID', op: '='} ).value();
+        var  expr = soar.sql('Person')
+                        .filter( {name: 'psnID', op: '='} );
 
         var  option = {
                 op: 'query',
@@ -71,10 +71,10 @@ describe('Test sql expression', function()  {
     });
 
     it('Query without specifying table columns and query conditions', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
+        var  stemp = soar.sql('Person'),
              option = {
                 op: 'query',
-                expr: stemp.value()
+                expr: stemp
              },
              query = {psnID: 1};
 
@@ -87,7 +87,7 @@ describe('Test sql expression', function()  {
     });
 
     it('List all persons', function(done) {
-        var  expr = soar.sqlTemplate('Person').value();
+        var  expr = soar.sql('Person');
 
         var  option = {
             op: 'list',
@@ -100,7 +100,23 @@ describe('Test sql expression', function()  {
             done();
         });
     });
-    
+
+    it('List with the IN condition', function(done) {
+        var  expr = soar.sql('Person')
+                        .filter({name: 'psnID', op: 'IN'});
+
+        var  cmd = {
+            op: 'list',
+            expr: expr
+        };
+
+        soar.execute(cmd, {psnID: [1, 3]}, function(err, list) {
+            //console.log( JSON.stringify(list, null, 4) );
+            assert.equal( list.length, 2, 'Should return 2 persons.');
+            done();
+        });
+    });
+
     it('List -- pagination', function(done) {
         var  expr = soar.sql('Person');
 
@@ -119,10 +135,9 @@ describe('Test sql expression', function()  {
     });
 
     it('Update', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.column(['psnID', 'name']).
-        filter( {name: 'psnID', op: '='} ).
-        value();
+        var  expr = soar.sql('Person')
+                        .column(['psnID', 'name'])
+                        .filter( {name: 'psnID', op: '='} );
 
         var  option = {
                 op: 'update',
@@ -149,8 +164,8 @@ describe('Test sql expression', function()  {
     });
 
     it('Update without specifying table columns', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.filter( {name: 'psnID', op: '='} ).value();
+        var  expr = soar.sql('Person')
+                        .filter( {name: 'psnID', op: '='} );
 
         var  option = {
                 op: 'update',
@@ -183,7 +198,7 @@ describe('Test sql expression', function()  {
                 expr: expr
              },
              now = new Date(),
-             data = {name: 'John Mayer', modifyTime: new Date()},
+             data = {name: 'John Mayer', modifyTime: now},
              query = {psnID: 1};
 
         soar.execute(cmd, data, query, function(err) {
@@ -192,6 +207,7 @@ describe('Test sql expression', function()  {
             cmd.op = 'query';
             soar.execute(cmd, query, function(err, data) {
                 var  mdTime = data.modifyTime;
+                //console.log('written time: %d, readback time: %d', now.getSeconds(), mdTime.getSeconds());
                 assert.equal( data.name, 'John Mayer', 'Person name not matched.');
                 assert.equal( now.getSeconds(), mdTime.getSeconds(), 'modify time does not match');
 
@@ -206,10 +222,9 @@ describe('Test sql expression', function()  {
     });
 
     it('Insert and delete with transactions', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.column(['psnID', 'name'])
-                         .filter( {name: 'psnID', op: '='} )
-                         .value();
+        var  expr = soar.sql('Person')
+                        .column(['psnID', 'name'])
+                        .filter( {name: 'psnID', op: '='} );
 
         soar.getConnection( function(err, conn) {
             conn.beginTransaction(function(err) {
@@ -239,8 +254,8 @@ describe('Test sql expression', function()  {
     });
 
     it('Insert and delete without specifying table columns', function(done) {
-        var  stemp = soar.sqlTemplate('Person'),
-             expr = stemp.filter( {name: 'psnID', op: '='} ).value();
+        var  expr = soar.sql('Person')
+                        .filter( {name: 'psnID', op: '='} );
 
         soar.getConnection( function(err, conn) {
             conn.beginTransaction(function(err) {
@@ -334,6 +349,7 @@ describe('Test sql expression', function()  {
             });
         });
     });
+
 });
 
 describe('Test short hand', function()  {
