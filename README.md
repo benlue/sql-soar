@@ -435,7 +435,7 @@ It's possible to use IN in the where clause with **soar**, but it has to be done
                     .filter({name: 'psnID', op: 'IN'});
 
     var  cmd = {op: 'list', expr: expr},
-         quer = {psnID: [7, 29, 33]};                    
+         query = {psnID: [7, 29, 33]};                    
     soar.execute(cmd, query, function(err, list)  {
         // list will contain people whose id is 7, 29 or 33
     });
