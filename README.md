@@ -17,7 +17,7 @@ SQL-SOAR
 ## What's New
 You can find detailed information in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
 
-+ When join tables, both syntax as "table AS alias" or "table alias" would work.
++ When joining tables, both syntax as "table AS alias" or "table alias" would work (v 1.1.5).
 
 + Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily (v 1.1.4).
 
