@@ -17,7 +17,11 @@ SQL-SOAR
 ## What's New
 You can find detailed information in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
 
-+ Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily.
++ When join tables, both syntax as "table AS alias" or "table alias" would work.
+
++ Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily (v 1.1.4).
+
++ If necessary, you can directly execute SQL statements using the [runSql()](#runsql) function (v 1.1.3). 
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide

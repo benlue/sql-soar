@@ -1,3 +1,8 @@
+1.1.5
+=====
+
++ Both "table AS alias" or "table alias" would work.
+
 1.1.4
 =====
 

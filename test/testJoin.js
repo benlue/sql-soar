@@ -37,6 +37,28 @@ describe('Test table joins', function()  {
     		done();
     	})
     });
+    
+    it('Simple join -- short form', function(done) {
+    	var  expr = soar.sql('Person psn')
+    					.join({table: 'PsnLoc pl', onWhat: 'psn.psnID = pl.psnID'})
+    					.join({table: 'GeoLoc geo', onWhat: 'pl.geID=geo.geID'})
+    					.column(['psn.psnID psnID', 'psn.name', 'latitude', 'longitude'])
+    					.filter({name: 'psn.psnID', op: '='})
+    					.value(),
+    		 cmd = {
+    		 	op: 'query',
+    		 	expr: expr
+    		 },
+    		 query = {psnID: 1};
+
+    	soar.execute(cmd, query, function(err, data) {
+    		//console.log(JSON.stringify(data, null, 4));
+    		assert.equal(data.name, 'John', 'wrong name');
+    		assert.equal(data.latitude, 25.133398, 'wrong latitude');
+
+    		done();
+    	})
+    });
 
     it('join with auto fill', function(done) {
         var  expr = soar.sql('Person AS psn')

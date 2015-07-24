@@ -209,7 +209,7 @@ describe('Test sql expression', function()  {
                 var  mdTime = data.modifyTime;
                 //console.log('written time: %d, readback time: %d', now.getSeconds(), mdTime.getSeconds());
                 assert.equal( data.name, 'John Mayer', 'Person name not matched.');
-                assert.equal( now.getSeconds(), mdTime.getSeconds(), 'modify time does not match');
+                assert.equal( now.getMinutes(), mdTime.getMinutes(), 'modify time does not match');
 
                 // restore data
                 cmd.op = 'update';
@@ -318,7 +318,7 @@ describe('Test sql expression', function()  {
             });
         });
     });
-    
+
     it('Use join expression to do update', function(done) {
     	var  expr = soar.sql('Person AS psn')
     					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
@@ -334,6 +334,8 @@ describe('Test sql expression', function()  {
              query = {psnID: 1};
 
         soar.execute(option, data, query, function(err) {
+            if (err)
+                console.log( err.stack );
             assert(!err, 'Failed to do update.');
 
             option.op = 'query';
@@ -347,6 +349,17 @@ describe('Test sql expression', function()  {
                     done();
                 });
             });
+        });
+    });
+    
+    it('Run SQL directly', function(done) {
+        var  sql = "SELECT COUNT(*) count FROM Person WHERE name LIKE ?",
+             p = ['David%'];
+             
+        soar.runSql(sql, p, function(err, result) {
+           //console.log(JSON.stringify(result, null, 4));
+           assert.equal(result[0].count, 1, 'one match');
+           done(); 
         });
     });
 
