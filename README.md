@@ -65,7 +65,7 @@ So the signatures of the querying calls can be summarized as below:
     soar.query('table_name', query, callback);
     soar.list('table_name', query, callback);
 
-"query" is the column-value pair that will be translated into the WHERE clause. If the query object contains more than one properties, they wil be ANDed together. For example:
+where "query" is the column-value pair that will be translated into the WHERE clause. If the query object contains more than one properties, they wil be ANDed together. For example:
 
     soar.list('Person, {age:25, city:'Oakland'}, callback);
     
