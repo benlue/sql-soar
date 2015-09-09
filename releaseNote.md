@@ -1,3 +1,10 @@
+1.1.6
+=====
+
++ When a list query is requested in "page" mode, the totol count returned may be wrong due to "JOIN" clause. The bug is fixed.
+
++ The runSql() method did not release connection properly. It's also fixed in this release.
+
 1.1.5
 =====
 
