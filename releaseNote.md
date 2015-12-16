@@ -1,3 +1,8 @@
+1.1.7
+=====
+
++ Bug fix: when doing list query with paging, the total count will always refreshed.
+
 1.1.6
 =====
 
