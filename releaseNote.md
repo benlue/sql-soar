@@ -1,7 +1,7 @@
 1.1.7
 =====
 
-+ Bug fix: when doing list query with paging, the total count will always refreshed.
++ Bug fix: when doing list query with paging, the total count will always be refreshed.
 
 1.1.6
 =====
