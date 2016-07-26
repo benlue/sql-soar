@@ -27,7 +27,7 @@ You can find detailed information in the [release notes](https://github.com/benl
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide
-First of all, you have to config **soar** so it knows how to talk with the database:
+First of all, you have to config **soar** so it knows how to talk with your database:
 
     var  soar = require('sql-soar'),
     var  options = {
@@ -256,7 +256,7 @@ That's equivalent to:
 
 Actually, the same SQL expressions can be used in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement.
 
-Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Most SQL expression functions will return the expression object itself, so you can chain funcion calls so that SQL expressions can be composed succintly.
+So constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Every SQL expression function returns the expression object itself, so you can chain funcion calls so that SQL expressions can be composed succintly.
 
 What's better, if you keep using some SQL expressions in your applications, you may want to save them into files so you can reuse them. Stored in files, such SQL expressions are also very easy to maintain.
 
@@ -305,9 +305,9 @@ Example:
 
 <a name="sbiFilter"></a>
 #### expr.filter(filter)
-This function is used to set query conditions (filter) of a SQL expression. **soar** accepts various formats so you can easily specify the query conditions needed.
+This function is used to set query conditions (filter) of a SQL expression. **soar** accepts various filter formats so you can easily specify the query conditions needed.
 
-The easiest way is to simply specify a column name like:
+The easiest way is to simply specify a column name as the query condition:
 
     var  expr = soar.sql('Person')
                     .filter('age');
