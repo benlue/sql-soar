@@ -2,15 +2,15 @@
 * sql-soar
 * authors: Ben Lue
 * license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
+* Copyright(c) 2015~2016 Gocharm Inc.
 */
 var  assert = require('assert'),
      dbConn = require('../lib/dbConn.js'),
      path = require('path'),
      soar = require('../lib/soar.js');
 
-var  dbUser = 'my_acc',
-     rightPasswd = 'my_passwd',
+var  dbUser = 'your_passwd',
+     rightPasswd = 'your_passwd',
      wrongPasswd = 'xxxx';
 
 //soar.setDebug( true );

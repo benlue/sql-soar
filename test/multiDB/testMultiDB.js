@@ -16,23 +16,21 @@ before(function() {
             "dbConfig": {
                 "host"     : "127.0.0.1",
                 "database" : "soar",
-                "user"     : "my_acc",
-                "password" : "my_passwd",
+                "user"     : "your_acc",
+                "password" : "your_passwd",
                 "supportBigNumbers" : true,
                 "connectionLimit"   : 16
-            },
-            "defPath": path.join(__dirname, '../def')
+            }
         },
         {
             "dbConfig": {
                 "host"     : "127.0.0.1",
                 "database" : "soar2",
-                "user"     : "my_acc",
-                "password" : "my_passwd",
+                "user"     : "your_acc",
+                "password" : "your_passwd",
                 "supportBigNumbers" : true,
                 "connectionLimit"   : 16
-            },
-            "defPath": path.join(__dirname, '../def/soar2')
+            }
         }
     ]);
 });
@@ -118,6 +116,8 @@ describe('Access multiple databases', function()  {
 
     it('Insert and delete with transactions', function(done) {
         soar.getConnection( 'soar', function(err, conn) {
+            assert(!err, 'Failed to create connection.');
+
             conn.beginTransaction(function(err) {
                 assert(!err, 'Transaction failed to get started.');
 
@@ -138,6 +138,7 @@ describe('Access multiple databases', function()  {
                         assert(!err, 'Failed to delete.');
                         conn.commit( function(err) {
                             assert(!err, 'Transaction failed to commit.');
+                            conn.release();
                             done();
                         });
                     });

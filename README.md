@@ -2,26 +2,28 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike most ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
 
 + Reusable SQL: you can formulate a SQL statement into an expression. You can later invoke and reuse that SQL expression with various query conditions.
 
-+ Simple and elegant: you don't have to hand code the sql WHERE clause any more. Just specify the query values and **soar** will do the tedious works for you.
++ Simple and elegant: you don't have to hand code the sql WHERE clause. Just specify the query values and **soar** will do the tedious works for you.
 
-+ Multiple database access: it's very easy to access multiple databases within an application with **soar**.
++ Multiple database access: it's very easy to access multiple databases within an application.
 
-+ Schema manipulation: you can define a table schema using JSON as the notation, and you can easily manipulate table schemas.
++ Schema manipulation: you can define a table using JSON as the schema notation, and you can easily manipulate the table definition.
 
-+ Full control: unlike most ORM solutions, you have full control of how SQL is generated and applied.
++ Full control: unlike ORM solutions, you have full control of how SQL is generated and applied.
 
 ## What's New
 You can find detailed information in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
 
-+ When joining tables, both syntax as "table AS alias" or "table alias" would work (v 1.1.5).
++ [v1.2.0] SQL expressions can be stored as files. That makes reuse even easier.
 
-+ Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily (v 1.1.4).
++ [v1.1.5] When joining tables, both syntax as "table AS alias" or "table alias" would work.
 
-+ If necessary, you can directly execute SQL statements using the [runSql()](#runsql) function (v 1.1.3). 
++ [v1.1.4] Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily.
+
++ [v1.1.3] If necessary, you can directly execute SQL statements using the [runSql()](#runsql) function. 
 
 <a name="5MGuide"></a>
 ## 5 Minutes Guide
@@ -97,7 +99,7 @@ so as "delete":
 
     soar.del('Person', {age: 18}, callback);
 
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the API section about [_execute()_](#soarExecute).
+As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the [_execute()_](#soarExecute) API.
 
 ## Installation
 
@@ -116,7 +118,6 @@ As you can see the CRUD (create, read, update and delete) operations can be done
     + [expr.join()](#sbiJoin)
     + [expr.column()](#sbiColumn)
     + [expr.filter()](#sbiFilter)
-    + [soar.chainFilters()](#sbiChainFilter)
     + [expr.extra()](#sbiExtra)
   + [APIs related to data manipulation](#crudAPI)
     + [execute()](#soarExecute)
@@ -150,11 +151,13 @@ Right beneath the SOAR installation directory, there is a **config.json** file w
     		"password" : "xxxx",
     		"supportBigNumbers" : true,
     		"connectionLimit"   : 32
-    	}
+    	},
+        "storedExpr": "file_path_to_the_stored_expressions"
     }
 
 where **host** is the database host and **database** is the database name. **user** and **password** are the database user name and password respectively. SOAR ueses the _mysql_ node module as its mySQL driver and the connection pool feature is turned on by default.
 
+There is another property "storedExpr" specified in the option. The **storedExpr** property denotes the file directory where stored SQL expressions are located. This property is optional. If you don't use any stored SQL expression at all, you can leave out this property.
 
 <a name="configProg"></a>
 ### Configure Programmatically
@@ -169,10 +172,13 @@ You can configure the database connection settings right inside your node.js app
                     "password" : "xxxx",
                     "supportBigNumbers" : true,
                     "connectionLimit"   : 32
-                }
+                },
+                "storedExpr": "file_path_to_the_stored_expressions"
          };
 
     soar.config( options );
+
+The option settings are the same as the config.json file.
 
 <a name="multidb"></a>
 ### Multiple Databases Configuration
@@ -212,7 +218,7 @@ How to access each database in a multi-databases scenario will be explained in e
 
 As explained in the ["5 Minutes Guide"](#5MGuide) above, if you want to do sophisticated SQL queries, you'll need a more powerful tool. That tool is the SQL expression.
 
-You can use SQL expressions to instruct **soar** how to talk with databases. With SQL expressions, you can compose and reuse SQL queries in a clean and managable way. In essence, SQL expressions are nothing more than SQL statements encoded as a JSON object. An example should help to understand what is a SQL expression:
+You can use SQL expressions to instruct **soar** how to talk with databases. With SQL expressions, you can compose and reuse SQL queries in a clean and managable way. In essence, SQL expressions are nothing more than SQL statements encoded as a JSON object. An example should help to explain what is a SQL expression:
 
     var  expr = soar.sql('Person')
                     .column(['id', 'addr AS address', 'age'])
@@ -237,7 +243,9 @@ That's equivalent to:
     FROM Person
     WHERE age >= 18;
     
-"Well, that's nice but what's the befenit?" you may ask. The magic is you can use the same SQL expression in update:
+**soar** will match the input query with the filter section of a SQL expression.
+
+"Well, that looks nice but what's the befenit?" you may ask. The magic is you can use the same SQL expression in update:
 
     var  cmd = {
             op: 'update',
@@ -246,9 +254,11 @@ That's equivalent to:
          
     soar.execute(cmd, {canDrive: true}, {age: 18}, callback);
 
-Actually, the same SQL expressions can be used in all CRUD operations. **soar** is smart enough to retrieve the needed information from a SQL expression and compose the SQL statement you want.
+Actually, the same SQL expressions can be used in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement.
 
-Assuming you're satisfied, below is how to construct a SQL expression: _soar.sql(tableName)_ takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Most SQL expression functions will return the expression object itself, so you can chain funcion calls such that SQL expressions can be composed succintly.
+Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Most SQL expression functions will return the expression object itself, so you can chain funcion calls so that SQL expressions can be composed succintly.
+
+What's better, if you keep using some SQL expressions in your applications, you may want to save them into files so you can reuse them. Stored in files, such SQL expressions are also very easy to maintain.
 
 <a name="dynamicAPI"></a>
 ## API
@@ -295,35 +305,64 @@ Example:
 
 <a name="sbiFilter"></a>
 #### expr.filter(filter)
-This function is used to set query conditions (filter) of a SQL expression. The parameter to the function call is a plain JSON object with the following properties:
+This function is used to set query conditions (filter) of a SQL expression. **soar** accepts various formats so you can easily specify the query conditions needed.
+
+The easiest way is to simply specify a column name like:
+
+    var  expr = soar.sql('Person')
+                    .filter('age');
+
+That is equavilent to the following SQL statement:
+
+    SELECT * FROM Person WHERE age = ?;
+
+If the comparator is not equal (=) but other opertors, you can specify the filter as an object:
+
+    var  expr = soar.sql('Person')
+                    .filter({age: '>'});
+
+That is equavilent to the following SQL statement:
+
+    SELECT * FROM Person WHERE age > ?;
+
+The object filter just introduced is actually an short format. The "standard" object filter could have the following properties:
 
 + name: name of the filter. It's also used as the key to retrieve the query value from a query object. This property is required.
 + field: the real column name in a table. If this property is missing, the _name_ property will be used instead.
 + op: what comparator to be used. It can be '>', '=' or 'IS NULL', etc.
 + noArg: when a query operation does not require argument (e.g. IS NULL), this property should be set to true.
 
-Note that this function should be called just once for a SQL expression. When called multiple times, the new setting will replace the old one.
-
-Example:
+What about compound query conditions? You can do so with a single property filter object and the property value is an array (of object filters) such as the following:
 
     var  expr = soar.sql('Person')
-                    .filter({name: 'age', op: '>='});
+                    .filter({
+                        'or': [
+                            {age: '>'},
+                            'height'
+                        ]
+                    });
 
-<a name="sbiChainFilter"></a>
-#### soar.chainFilters(op, filters)
-If you want to make a compound filter (ANDed or ORed filters), this is the function you need. _op_ should be 'AND' or 'OR', and _filters_ is an array of filters.
+That is equavilent to the following SQL statement:
 
-Example:
+    SELECT * FROM Person WHERE age > ? OR height = ?;
 
-    var  orFilters = soar.chainFilters('OR', [
-            {name: 'region', op: '='},
-            {name: 'age', op: '>'}
-         ]);
-         
-    var  expr = soar.sql('myTable')
-                    .filter( orFilters );
+If the compound operator is 'and', you can even omit it. For example:
 
-The resulting filter (orFilters) is a compound filter ORing two filters (region and age).
+    var  expr = soar.sql('Person')
+                    .filter({
+                        'and': [
+                            {weight: '>'},
+                            {height: '>'}
+                        ]
+                    });
+
+is the same as:
+
+    var  expr = soar.sql('Person')
+                    .filter([
+                        {weight: '>'},
+                        {height: '>'}
+                    ]);
 
 <a name="sbiExtra"></a>
 #### expr.extra(extra)
@@ -346,7 +385,7 @@ The **_cmd_** parameter is a command to **soar** and it has the following proper
 
 + op: should be one of the following: 'query', 'list', 'insert', 'update' and 'delete'.
 
-+ expr: the SQL expression needed to generate the required SQL statement.
++ expr: the SQL expression needed to generate the required SQL statement. If you want to invoke a stored SQL expression, this property can be the path name of the stored SQL expression.
 
 + range: specifies the window of a result set. The _range_ object can be created using the _soar.range()_ function.
 
@@ -433,7 +472,7 @@ Example:
 
 <a name="inClause"></a>   
 ##### List with the IN clause
-It's possible to use IN in the where clause with **soar**, but it has to be done with the more sophisticaed _execute()_ function. Below is how it can be done:
+It's possible to use IN in the where clause, but it has to be done with the more sophisticaed _execute()_ function. Below is how it can be done:
 
     var  expr = soar.sql('Person')
                     .filter({name: 'psnID', op: 'IN'});

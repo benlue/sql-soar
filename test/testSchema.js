@@ -38,6 +38,7 @@ describe('Schema manipulation with connection specified', function()  {
     				//console.log( JSON.stringify(schema.columns, null, 2) );
     				assert.equal(schema.title, 'TestPage', 'table name is wrong');
     				assert.equal(Object.keys(schema.columns).length, 2, 'table has 2 columns');
+                    conn.release();
     				done();
     			})
     		});
@@ -80,6 +81,7 @@ describe('Schema manipulation with connection specified', function()  {
     				//console.log( JSON.stringify(schema.columns, null, 2) );
     				assert.equal(schema.title, 'TestPage', 'table name is wrong');
     				assert.equal(Object.keys(schema.columns).length, 4, 'table has 4 columns');
+                    conn.release();
     				done();
     			})
     		});
@@ -106,6 +108,7 @@ describe('Schema manipulation with connection specified', function()  {
                     //console.log( JSON.stringify(schema.columns, null, 2) );
                     assert.equal(schema.title, 'TestPage', 'table name is wrong');
                     assert.equal(Object.keys(schema.columns).length, 3, 'table has 3 columns');
+                    conn.release();
                     done();
                 })
             });
@@ -116,6 +119,7 @@ describe('Schema manipulation with connection specified', function()  {
     	soar.getConnection(function(err, conn)  {
     		soar.deleteTable(conn, 'TestPage', function(err)  {
     			assert(!err, 'Deletion failed');
+                conn.release();
     			done();
     		});
     	});

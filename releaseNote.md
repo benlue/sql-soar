@@ -1,3 +1,12 @@
+1.2.0
+=====
+
++ Supported "stored SQL expressions". Commonly used SQL expressions can be stored as files so they don't have to be rebuilt every time. 
+
++ Closed down the old connection pools if soar is being re-configured.
+
++ Fixed the problem that some test cases did not release connections.
+
 1.1.7
 =====
 

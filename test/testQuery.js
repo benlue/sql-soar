@@ -35,6 +35,24 @@ describe('Test sql expression', function()  {
         });
     });
 
+    it('Simple query, simple filter', function(done) {
+        var  expr = soar.sql('Person')
+                        .column(['psnID', 'name'])
+                        .filter( 'psnID' );
+
+        var  option = {
+                op: 'query',
+                expr: expr
+             },
+             query = {psnID: 1};
+
+        soar.execute(option, query, function(err, data) {
+            assert( data, 'Missing psnID=1 data');
+            assert.equal( data.name, 'John', 'Person name not matched.');
+            done();
+        });
+    });
+
     it('Simple query with alias', function(done) {
         var  expr = soar.sql('Person')
                         .column(['psnID', 'name AS fullName'])
@@ -97,6 +115,31 @@ describe('Test sql expression', function()  {
         soar.execute(option, function(err, list) {
             //console.log( JSON.stringify(list, null, 4) );
             assert.equal( list.length, 5, 'Totally 5 persons.');
+            done();
+        });
+    });
+
+    it('List with OR filter', function(done) {
+        var  expr = soar.sql('Person')
+                        .filter( {
+                            or: [
+                                'name',
+                                {dob: '>='}
+                            ]
+                        });
+
+        var  option = {
+                op: 'list',
+                expr: expr
+             },
+             query = {
+                 name: 'Stacy',
+                 dob: '1980-01-01'
+             };
+
+        soar.execute(option, query, function(err, data) {
+            assert.equal( data.length, 3, 'Should have 3 matches');
+            //console.log( JSON.stringify(data, null, 4) );
             done();
         });
     });
@@ -220,7 +263,7 @@ describe('Test sql expression', function()  {
             });
         })
     });
-
+    
     it('Insert and delete with transactions', function(done) {
         var  expr = soar.sql('Person')
                         .column(['psnID', 'name'])
@@ -245,6 +288,7 @@ describe('Test sql expression', function()  {
                         assert(!err, 'Failed to delete.');
                         conn.commit( function(err) {
                             assert(!err, 'Transaction failed to commit.');
+                            conn.release();
                             done();
                         });
                     });
@@ -252,7 +296,7 @@ describe('Test sql expression', function()  {
             });
         });
     });
-
+    
     it('Insert and delete without specifying table columns', function(done) {
         var  expr = soar.sql('Person')
                         .filter( {name: 'psnID', op: '='} );
@@ -276,6 +320,8 @@ describe('Test sql expression', function()  {
                         assert(!err, 'Failed to delete.');
                         conn.commit( function(err) {
                             assert(!err, 'Transaction failed to commit.');
+
+                            conn.release();
                             done();
                         });
                     });
@@ -311,6 +357,8 @@ describe('Test sql expression', function()  {
                         assert(!err, 'Failed to delete.');
                         conn.commit( function(err) {
                             assert(!err, 'Transaction failed to commit.');
+
+                            conn.release();
                             done();
                         });
                     });
@@ -351,7 +399,7 @@ describe('Test sql expression', function()  {
             });
         });
     });
-    
+
     it('Run SQL directly', function(done) {
         var  sql = "SELECT COUNT(*) count FROM Person WHERE name LIKE ?",
              p = ['David%'];
@@ -362,7 +410,6 @@ describe('Test sql expression', function()  {
            done(); 
         });
     });
-
 });
 
 describe('Test short hand', function()  {
