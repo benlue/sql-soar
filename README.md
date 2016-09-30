@@ -10,7 +10,7 @@ SQL-SOAR
 
 + Multiple database access: it's very easy to access multiple databases within an application.
 
-+ Schema manipulation: you can define a table using JSON as the schema notation, and you can easily manipulate the table definition.
++ Schema manipulation: you can define a table using JSON as the schema notation, and thus manipulate the table definition easily.
 
 + Full control: unlike ORM solutions, you have full control of how SQL is generated and applied.
 
@@ -64,14 +64,14 @@ If you're sure your query result should have at most one entity, you may conside
 
 So the signatures of the querying calls can be summarized as below:
 
-    soar.query('table_name', query, callback);
-    soar.list('table_name', query, callback);
+    soar.query('table_name', query_values, cb);
+    soar.list('table_name', query_values, cb);
 
-where "query" is the column-value pair that will be translated into the WHERE clause. If the query object contains more than one properties, they wil be ANDed together. For example:
+where "query_values" is the column-value pair that will be translated into the WHERE clause. The query object can contain multiple properties. In that case, all properties wil be ANDed together. For example:
 
     soar.list('Person, {age:25, city:'Oakland'}, callback);
     
-is like querying database with the following SQL statement:
+is the same as the following SQL statement:
 
     SELECT * FROM Person WHERE age = 25 AND city = 'Oakland';
     
@@ -99,7 +99,7 @@ so as "delete":
 
     soar.del('Person', {age: 18}, callback);
 
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the APIs explained above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you want to issue a query with very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with _execute()_. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the [_execute()_](#soarExecute) API.
+As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the features shown above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you need to specify very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with the _execute()_ function. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the [_execute()_](#soarExecute) API.
 
 ## Installation
 
