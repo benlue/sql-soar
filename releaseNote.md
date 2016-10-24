@@ -1,3 +1,8 @@
+1.2.2
+=====
+
++ Fixed a bug of the returning total rows when doing pagination.
+
 1.2.1
 =====
 
