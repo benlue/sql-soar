@@ -18,15 +18,12 @@ describe('Test table joins', function()  {
 
     it('Simple join', function(done) {
     	var  expr = soar.sql('Person AS psn')
-    					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
-    					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
+    					.join({table: 'PsnLoc AS pl', on: 'psn.psnID'})
+						.join({table: 'GeoLoc AS geo', on: 'pl.geID'})
     					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
     					.filter({name: 'psn.psnID', op: '='})
     					.value(),
-    		 cmd = {
-    		 	op: 'query',
-    		 	expr: expr
-    		 },
+    		 cmd = {query: expr},
     		 query = {psnID: 1};
 
     	soar.execute(cmd, query, function(err, data) {

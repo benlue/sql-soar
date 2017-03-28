@@ -1,3 +1,12 @@
+1.2.3
+=====
+
++ Databases can be referred by its alias.
+
++ The SQL command has been further simplified.
+
++ The syntax of table join in the SQL expression is also simplified.
+
 1.2.2
 =====
 

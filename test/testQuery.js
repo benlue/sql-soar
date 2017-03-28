@@ -75,10 +75,7 @@ describe('Test sql expression', function()  {
         var  expr = soar.sql('Person')
                         .filter( {name: 'psnID', op: '='} );
 
-        var  option = {
-                op: 'query',
-                expr: expr
-             },
+        var  option = {query: expr},
              query = {psnID: 1};
 
         soar.execute(option, query, function(err, data) {
@@ -90,10 +87,7 @@ describe('Test sql expression', function()  {
 
     it('Query without specifying table columns and query conditions', function(done) {
         var  stemp = soar.sql('Person'),
-             option = {
-                op: 'query',
-                expr: stemp
-             },
+             option = {query: stemp},
              query = {psnID: 1};
 
         soar.execute(option, query, function(err, data) {
@@ -105,16 +99,11 @@ describe('Test sql expression', function()  {
     });
 
     it('List all persons', function(done) {
-        var  expr = soar.sql('Person');
-
-        var  option = {
-            op: 'list',
-            expr: expr
-        };
+        var  option = {list: soar.sql('Person')};
 
         soar.execute(option, function(err, list) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( list.length, 5, 'Totally 5 persons.');
+            assert.equal( list.length, 8, 'Totally 8 persons.');
             done();
         });
     });
@@ -161,17 +150,14 @@ describe('Test sql expression', function()  {
     });
 
     it('List -- pagination', function(done) {
-        var  expr = soar.sql('Person');
-
         var  option = {
-            op: 'list',
-            expr: expr,
-            range: soar.range(1, 2)
-        };
+                list: soar.sql('Person'),
+                range: soar.range(1, 2)
+             };
 
         soar.execute(option, function(err, list, count) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( count, 5, 'Totally 5 persons.');
+            assert.equal( count, 8, 'Totally 8 persons.');
             assert.equal( list.length, 2, 'page size is 2.');
             done();
         });
@@ -182,22 +168,21 @@ describe('Test sql expression', function()  {
                         .column(['psnID', 'name'])
                         .filter( {name: 'psnID', op: '='} );
 
-        var  option = {
-                op: 'update',
-                expr: expr
-             },
+        var  option = {update: expr},
              data = {name: 'John Mayer'},
              query = {psnID: 1};
 
         soar.execute(option, data, query, function(err) {
             assert(!err, 'Failed to do update.');
 
-            option.op = 'query';
+            delete  option.update;
+            option.query = expr;
             soar.execute(option, query, function(err, data) {
                 assert.equal( data.name, 'John Mayer', 'Person name not matched.');
 
                 // restore data
-                option.op = 'update';
+                delete  option.query;
+                option.update = expr;
                 soar.execute(option, {name: 'John'}, query, function(err) {
                     assert(!err, 'Failed to do update.');
                     done();
@@ -274,16 +259,16 @@ describe('Test sql expression', function()  {
                 assert(!err, 'Transaction failed to get started.');
 
                 var  option = {
-                        op: 'insert',
-                        expr: expr,
+                        insert: expr,
                         conn: conn
                      },
                      data = {name: 'Scott Cooper'};
 
-                soar.execute(option, data, null, function(err, value) {
+                soar.execute(option, data, function(err, value) {
                     assert(value, 'Failed to insert');
 
-                    option.op = 'delete';
+                    delete option.insert;
+                    option.delete = expr;
                     soar.execute(option, value, function(err) {
                         assert(!err, 'Failed to delete.');
                         conn.commit( function(err) {
@@ -431,7 +416,7 @@ describe('Test short hand', function()  {
     
     it('list', function(done) {
         soar.list('Person', {psnID: {op: '>=', value: 2}}, function(err, list) {
-            assert.equal(list.length, 4, '4 matches');
+            assert.equal(list.length, 7, '7 matches');
             done();
         });
     });

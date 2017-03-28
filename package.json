@@ -1,6 +1,6 @@
 {
   "name": "sql-soar",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "A SQL build and query tool for node.js.",
   "engines": "4.2.2",
   "main": "lib/soar.js",
@@ -19,6 +19,6 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "mysql": "^2.11.1"
+    "mysql": "^2.13.0"
   }
 }

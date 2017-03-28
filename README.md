@@ -137,10 +137,12 @@ As you can see the CRUD (create, read, update and delete) operations can be done
 
 <a name="dbSetup"></a>
 ## DB Settings
+
 There are two ways to setup the database configuration in SOAR: using a config file or doing it programmatically.
 
 <a name="config"></a>
 ### The config.json File
+
 Right beneath the SOAR installation directory, there is a **config.json** file which would look like:
 
     {
@@ -161,6 +163,7 @@ There is another property "storedExpr" specified in the option. The **storedExpr
 
 <a name="configProg"></a>
 ### Configure Programmatically
+
 You can configure the database connection settings right inside your node.js application. Here is how:
 
     var  soar = require('sql-soar');
@@ -182,6 +185,7 @@ The option settings are the same as the config.json file.
 
 <a name="multidb"></a>
 ### Multiple Databases Configuration
+
 Using SOAR to access multiple databases is extremely easy. In this section, we'll show you how to configure SOAR to connect to multiple databases.
 
 In your **config.json** file, use an array of options instead of a single configuration option with each option specifying the settings of each database. Below is an example:
@@ -227,10 +231,7 @@ You can use SQL expressions to instruct **soar** how to talk with databases. Wit
     
 The above sample code just constructed a SQL expression. You can use it to do a database query:
 
-    var  cmd = {
-    	    op: 'list',
-    	    expr: expr
-         },
+    var  cmd = {list: expr},
          query = {age: 18};
     
     soar.execute(cmd, query, function(err, list) {
@@ -247,10 +248,7 @@ That's equivalent to:
 
 "Well, that looks nice but what's the befenit?" you may ask. The magic is you can use the same SQL expression in update:
 
-    var  cmd = {
-            op: 'update',
-            expr: expr
-         };
+    var  cmd = {update: expr};
          
     soar.execute(cmd, {canDrive: true}, {age: 18}, callback);
 
@@ -277,6 +275,7 @@ Example:
 
 <a name="sbiJoin"></a>
 #### expr.join(joinExpr)
+
 With the SQL expression obtained from the _soar.sql()_ funciton call, you  can use its _join()_ function to specify table joins.
 
 Example:
@@ -284,18 +283,19 @@ Example:
     var  expr = soar.sql('myTable AS myT')
                     .join({
                         table: 'Location AS loc', 
-                        onWhat: 'myT.locID=loc.locID'
+                        on: 'myT.locID=loc.locID'
                      });
     
 If you want to make multiple joins, just call _join()_ as many times as you need. The parameter to the _join()_ function call is a plain JSON object with the following properties:
 
 + table: name of the joined table.
 + type: if you want to make a left join, you can set this property to 'LEFT'.
-+ onWhat: the join clause. If the _use_ property described below is specified, this property will be ignored.
++ on: the join clause. If the _use_ property described below is specified, this property will be ignored.
 + use: the common column name to join two tables.
 
 <a name="sbiColumn"></a>
 #### expr.column(column)
+
 This function can be used to add table columns to a SQL expression. To add a single column, the parameter is the name of the column. If you want to add multiple columns, the parameter should be an array of column names.
 
 Example:
@@ -305,6 +305,7 @@ Example:
 
 <a name="sbiFilter"></a>
 #### expr.filter(filter)
+
 This function is used to set query conditions (filter) of a SQL expression. **soar** accepts various filter formats so you can easily specify the query conditions needed.
 
 The easiest way is to simply specify a column name as the query condition:
@@ -366,6 +367,7 @@ is the same as:
 
 <a name="sbiExtra"></a>
 #### expr.extra(extra)
+
 This function can add extra options to a SQL statement. _extra_ is a string with possible values like 'GROUP BY col_name' or 'ORDER BY col_name'.
 
 Example:
@@ -381,11 +383,9 @@ Example:
 
 This function can be used to execute SQL queries (query, list, insert, update and delete). The **_data_** parameter is a JSON object which contains data to be inserted or updated to a table entry. The **_query_** parameter is a JSON object which specifies the actual query values. It should be noted the **query** parameter here should just be plain column-value pairs. The [query object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) format is not applicable here.
 
-The **_cmd_** parameter is a command to **soar** and it has the following properties:
+The **_cmd_** parameter is a command to **soar**. It usually has an 'operator' property. The operator property can be one of the following: 'query', 'list', 'insert', 'update' and 'delete'. The value of the operator property is a SQL expression that is needed to generate the SQL statement. If you want to invoke a stored SQL expression, this property can be the path name of the stored SQL expression.
 
-+ op: should be one of the following: 'query', 'list', 'insert', 'update' and 'delete'.
-
-+ expr: the SQL expression needed to generate the required SQL statement. If you want to invoke a stored SQL expression, this property can be the path name of the stored SQL expression.
+Besides, the **_cmd_** parameter could have the following properties:
 
 + range: specifies the window of a result set. The _range_ object can be created using the _soar.range()_ function.
 
@@ -400,10 +400,7 @@ _cb_ is the callback function which receives an error and sometimes a result obj
 Example:
 
     var  expr = soar.sql('Person'),
-         cmd  {
-            op: 'update',
-            expr: expr
-         },
+         cmd = {update: expr},
          data = {
             name: 'John',
             age: 32
@@ -417,8 +414,7 @@ Example of doing pagination:
 
     var  expr = soar.sql('Person'),
          cmd = {
-            op: 'list',
-            expr: expr,
+            list: expr,
             range: soar.range(1, 10)    // return the first page with page size of 10
          };
          
@@ -429,6 +425,7 @@ Example of doing pagination:
     
 <a name="dynamicQuery"></a>
 #### soar.query(tbName, query, cb)
+
 If you expect a table query should return only one entity (even though there maybe multiple matches to your query), you can use this function.
 
 Example:
@@ -485,6 +482,7 @@ It's possible to use IN in the where clause, but it has to be done with the more
 
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
+
 Inserting a new entry to a table. 'data' is the data to be inserted. If 'data' contains properties which do not match to table columns, those properties will be ignored.
 
 Example:
@@ -498,6 +496,7 @@ Example:
 
 <a name="dynamicUpdate"></a>    
 #### soar.update(tbName, data, query, cb)
+
 Updating data entries in a table. 'data' is the new data. 'query' specifies which entries will be updated. The 'query' parameter is used to specify query conditions (the WHERE clause in a SQL statement). To explore the full power of query objects, Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md).
 
 Example:
@@ -506,6 +505,7 @@ Example:
 
 <a name="dynamicDelete"></a>    
 #### soar.del(tbName, query, cb)
+
 Deleting entries from a table. 'query' specifies which entries will be deleted.
 
 Example:
@@ -536,6 +536,7 @@ Example:
 
 <a name="transaction"></a>    
 #### How to do transactions
+
 Doing transaction is faily simple. All you need to do is to obtain a database connection and set it to the soar command. However, only the soar.execute() funciton supprots transactions. You can not apply transactions to soar.query(), soar.list(), soar.update(), soar.insert() and soar.del().
 
 Example:
@@ -574,34 +575,40 @@ Example:
 
 <a name="schema"></a>
 ## Schema Management
+
 Besides accessing data, you can also use **soar** to manage table schema.
 
 <a name="createTable"></a>
 ### createTable(schema, cb)
+
 This function will create a database table. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when table creation is successful or erred.
 
 If you want to call _createTable()_ with a specific database conection object, you can do _createTable(conn, schema, cb)_.
 
 <a name="alterTable"></a>
 ### alterTable(schema, cb)
+
 This function can be used to alter table schema. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when altering table is successfully done or erred.
 
 If you want to call _alterTable()_ with a specific database conection object, you can do _alterTable(conn, schema, cb)_.
 
 <a name="deleteTable"></a>
 ### deleteTable(tableName, cb)
+
 This function can be used to delete (drop) a table. _tableName_ is the name of the table to be dropped. _cb_ is a callback function when deleting table is successfully done or erred.
 
 If you want to call _deleteTable()_ with a specific database conection object, you can do _deleteTable(conn, schema, cb)_.
 
 <a name="describeTable"></a>
 ### describeTable(tableName, cb)
+
 This function can be used to derive schema from an existing table. _tableName_ is the name of the table to be explored. _cb(err, schema)_ is the callback function to return the table schema. The returned schema object is constructed as suggested by [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md).
 
 If you want to call _describeTable()_ with a specific database conection object, you can do _describeTable(conn, schema, cb)_.
 
 <a name="debug"></a>
 ## Debug Messages
+
 If you want to know what SQLs are actually generated by **soar**, you can turn on debug messages as shown below:
 
     soar.setDebug( true );
@@ -611,15 +618,16 @@ That will display generated SQL along with other debug information in console.
 Sometimes dumping SQLs of every database query could be overwhelming. You can choose to print oup a specific query by setting the 'debug' property of a **soar** command to true (this feature only works for the _execute()_ function). For example:
 
     var  cmd = {
-            op: 'list',
-            expr: expr,
+            list: expr,
             debug: true    // set to 'true' will print out SQL
          };
          
     soar.execute(cmd, query, cb);
 
 ## Regarding Tests
-The **soar** package comes with some test files. To run those tests, sample data have to be built first. Inside the "doc" directory there are two files: schema.sql and sampleData.sql. Those two files can be used to build the sample data. In addition, remember to change the user name and password in your config.json file and the related database settings in the test programs.
+
+The **soar** package comes with some test files. To run those tests, sample data have to be built first. Inside the "test/sampleData" directory there are two files: schema.sql and sampleData.sql. Those two files can be used to build the sample data. In addition, remember to change the user name and password in your config.json file and the related database settings in the test programs.
 
 ## Supported Database
+
 In the current release, **soar** only supports mySQL. If you want to use **soar** for other databases such as Postgre, MS SQL server or Oracle DB, etc, you'll have to write your own SQL generator. Right now SQL generation is implemented by ./lib/sqlGenMySql.js. 
