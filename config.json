@@ -1,10 +1,23 @@
-{
-	"dbConfig": {
-		"host"     : "127.0.0.1",
-		"database" : "soar",
-		"user"     : "your_acc",
-		"password" : "your_passwd",
-		"supportBigNumbers" : true,
-		"connectionLimit"   : 8
+[
+	{
+		"dbConfig": {
+			"host"     : "127.0.0.1",
+			"database" : "soar",
+			"user"     : "your_acc",
+			"password" : "your_passwd",
+			"supportBigNumbers" : true,
+			"connectionLimit"   : 8
+		}
+	},
+	{
+		"dbConfig": {
+			"alias"	   : "soar2",
+			"host"     : "127.0.0.1",
+			"database" : "soar",
+			"user"     : "your_acc",
+			"password" : "your_passwd",
+			"supportBigNumbers" : true,
+			"connectionLimit"   : 8
+		}
 	}
-}
+]

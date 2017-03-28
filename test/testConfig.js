@@ -9,7 +9,7 @@ var  assert = require('assert'),
      path = require('path'),
      soar = require('../lib/soar.js');
 
-var  dbUser = 'your_passwd',
+var  dbUser = 'your_acc',
      rightPasswd = 'your_passwd',
      wrongPasswd = 'xxxx';
 
@@ -17,17 +17,14 @@ var  dbUser = 'your_passwd',
 
 describe('Test configuration and settings', function()  {
 
-    it('Reading default configurations', function(done) {
+    it('Reading DB with alias set in the default configurations', function(done) {
         soar.config();
         
-        var  cmd = {
-                op: 'list',
-                expr: soar.sql('Person')
-             };
+        var  cmd = {list: soar.sql('soar2.Person')};
              
         soar.execute(cmd, function(err, list) {
             assert.ifError( err );
-            assert.equal(list.length, 5, 'We have 5 samples.');
+            assert.equal(list.length, 8, 'We have 8 samples.');
             done();
         });
     });
@@ -69,14 +66,11 @@ describe('Test configuration and settings', function()  {
         };
         soar.config( options );
         
-        var  cmd = {
-                op: 'list',
-                expr: soar.sql('Person')
-             };
+        var  cmd = {list: soar.sql('Person')};
              
         soar.execute(cmd, function(err, list) {
             assert.ifError( err );
-            assert.equal(list.length, 5, 'We have 5 samples.');
+            assert.equal(list.length, 8, 'We have 8 samples.');
             done();
         });
     });
