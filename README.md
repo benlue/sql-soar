@@ -220,16 +220,16 @@ How to access each database in a multi-databases scenario will be explained in e
 <a name="accessDB"></a>
 ## SQL Expressions
 
-As explained in the ["5 Minutes Guide"](#5MGuide) above, if you want to do sophisticated SQL queries, you'll need a more powerful tool. That tool is the SQL expression.
+As explained in the ["5 Minutes Guide"](#5MGuide) above, if you want to do sophisticated SQL queries, you'll need a more powerful tool. That tool is *SQL expression*.
 
-You can use SQL expressions to instruct **soar** how to talk with databases. With SQL expressions, you can compose and reuse SQL queries in a clean and managable way. In essence, SQL expressions are nothing more than SQL statements encoded as a JSON object. An example should help to explain what is a SQL expression:
+With SQL expressions, you can compose and reuse SQL queries in a clean and managable way. In essence, SQL expressions are nothing more than SQL statements encoded as a JSON object. An example should help to explain what is a SQL expression:
 
     var  expr = soar.sql('Person')
                     .column(['id', 'addr AS address', 'age'])
                     .filter( {name: 'age', op: '>='} )
                     .extra( 'ORDER BY id' );
     
-The above sample code just constructed a SQL expression. You can use it to do a database query:
+You can use the above SQL expression to do a database query:
 
     var  cmd = {list: expr},
          query = {age: 18};
@@ -246,15 +246,15 @@ That's equivalent to:
     
 **soar** will match the input query with the filter section of a SQL expression.
 
-"Well, that looks nice but what's the befenit?" you may ask. The magic is you can use the same SQL expression in update:
+"Well, that looks nice but what's the befenit?" you may ask. The best part of SQL expression is that you can simply specify your query conditions as a JSON object and **soar** will match your query objerct with the WHERE section of a SQL expression. In other words, you're saved from the pains-taking task to re-compose a SQL statement simply becase you've slightly changed your query condition.
+
+Besides, you can use the same SQL expressions  in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement. For example, you can use the same SQL expression for query to do update:
 
     var  cmd = {update: expr};
          
     soar.execute(cmd, {canDrive: true}, {age: 18}, callback);
 
-Actually, the same SQL expressions can be used in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement.
-
-So constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Every SQL expression function returns the expression object itself, so you can chain funcion calls so that SQL expressions can be composed succintly.
+Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add columns, set query conditions and specify addtional options. Every SQL expression function returns the expression object itself, so you can chain funcion calls so that SQL expressions can be composed succintly.
 
 What's better, if you keep using some SQL expressions in your applications, you may want to save them into files so you can reuse them. Stored in files, such SQL expressions are also very easy to maintain.
 
