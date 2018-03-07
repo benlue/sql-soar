@@ -2,13 +2,11 @@
 * sql-soar
 * authors: Ben Lue
 * license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
+* Copyright(c) 2015 ~ 2018 Gocharm Inc.
 */
-var  assert = require('assert'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
-
-//soar.setDebug( true );
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../lib/soar.js');
 
 before(function() {
     soar.config();
@@ -44,23 +42,23 @@ describe('Test sql statement caching', function()  {
     });
     
     it('List -- pagination', function(done) {
-        var  expr = soar.sql('Person');
+        let  expr = soar.sql('Person');
 
-        var  option = {
+        let  cmd = {
             op: 'list',
             expr: expr,
             range: soar.range(1, 2)
         };
 
-        soar.execute(option, function(err, list, count) {
+        soar.execute(cmd, function(err, list, count) {
             //console.log( JSON.stringify(expr.value(), null, 4) );
             //console.log('result is\n%s', JSON.stringify(list, null, 4));
             //console.log('existing count is ' + expr.value()._count);
             assert.equal( count, 5, 'Totally 5 persons.');
             assert.equal( list.length, 2, 'page size is 2.');
             
-            option.range = soar.range(2, 2);
-            soar.execute(option, function(err, list, count) {
+            cmd.range = soar.range(2, 2);
+            soar.execute(cmd, function(err, list, count) {
                 //console.log( JSON.stringify(list, null, 4) );
                 assert.equal( count, 5, 'Totally 5 persons.');
                 assert.equal( list.length, 2, 'page size is 2.');

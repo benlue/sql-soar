@@ -2,20 +2,17 @@
 * sql-soar
 * authors: Ben Lue
 * license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
+* Copyright(c) 2015 ~ 2018 Gocharm Inc.
 */
-var  assert = require('assert'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
-
-//soar.setDebug( true );
-
-before(function() {
-    soar.config();
-});
-
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../lib/soar.js');
 
 describe('Test sql expression', function()  {
+
+    before(function() {
+        soar.config();
+    });
 
     it('Simple query', function(done) {
         var  expr = soar.sql('Person')
@@ -103,7 +100,7 @@ describe('Test sql expression', function()  {
 
         soar.execute(option, function(err, list) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( list.length, 8, 'Totally 8 persons.');
+            assert.equal( list.length, 5, 'Totally 5 persons.');
             done();
         });
     });
@@ -157,7 +154,7 @@ describe('Test sql expression', function()  {
 
         soar.execute(option, function(err, list, count) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal( count, 8, 'Totally 8 persons.');
+            assert.equal( count, 5, 'Totally 5 persons.');
             assert.equal( list.length, 2, 'page size is 2.');
             done();
         });
@@ -416,7 +413,7 @@ describe('Test short hand', function()  {
     
     it('list', function(done) {
         soar.list('Person', {psnID: {op: '>=', value: 2}}, function(err, list) {
-            assert.equal(list.length, 7, '7 matches');
+            assert.equal(list.length, 4, '4 matches');
             done();
         });
     });

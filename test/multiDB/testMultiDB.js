@@ -1,42 +1,39 @@
 /*!
-* sql-soar
-* authors: Ben Lue
-* license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
-*/
-var  assert = require('assert'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
-
-//soar.setDebug( true );
-
-before(function() {
-    soar.config([
-        {
-            "dbConfig": {
-                "host"     : "127.0.0.1",
-                "database" : "soar",
-                "user"     : "your_acc",
-                "password" : "your_passwd",
-                "supportBigNumbers" : true,
-                "connectionLimit"   : 16
-            }
-        },
-        {
-            "dbConfig": {
-                "host"     : "127.0.0.1",
-                "database" : "soar2",
-                "user"     : "your_acc",
-                "password" : "your_passwd",
-                "supportBigNumbers" : true,
-                "connectionLimit"   : 16
-            }
-        }
-    ]);
-});
-
+ * sql-soar
+ * authors: Ben Lue
+ * license: MIT License
+ * Copyright(c) 2015 ~ 2018 Gocharm Inc.
+ */
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../../lib/soar.js');
 
 describe('Access multiple databases', function()  {
+
+    before(function() {
+        soar.config([
+            {
+                "dbConfig": {
+                    "host"     : "127.0.0.1",
+                    "database" : "soar",
+                    "user"     : "your_acc",
+                    "password" : "your_passwd",
+                    "supportBigNumbers" : true,
+                    "connectionLimit"   : 8
+                }
+            },
+            {
+                "dbConfig": {
+                    "host"     : "127.0.0.1",
+                    "database" : "soar2",
+                    "user"     : "your_acc",
+                    "password" : "your_passwd",
+                    "supportBigNumbers" : true,
+                    "connectionLimit"   : 8
+                }
+            }
+        ]);
+    });
 
     it('Simple query', function(done) {
         var  expr = soar.sql('soar.Person')

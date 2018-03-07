@@ -1,3 +1,8 @@
+1.3.0
+=====
+
++ Rewriting codes without changing functionalities.
+
 1.2.4
 =====
 

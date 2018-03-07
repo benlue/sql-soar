@@ -7,13 +7,14 @@
 			"password" : "your_passwd",
 			"supportBigNumbers" : true,
 			"connectionLimit"   : 8
-		}
+		},
+		"storedExpr": "../../test/storedExpr"
 	},
 	{
 		"dbConfig": {
 			"alias"	   : "soar2",
 			"host"     : "127.0.0.1",
-			"database" : "soar",
+			"database" : "soar2",
 			"user"     : "your_acc",
 			"password" : "your_passwd",
 			"supportBigNumbers" : true,

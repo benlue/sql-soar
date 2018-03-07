@@ -1,28 +1,26 @@
 /*!
-* sql-soar
-* authors: Ben Lue
-* license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
-*/
-var  assert = require('assert'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
+ * sql-soar
+ * authors: Ben Lue
+ * license: MIT License
+ * Copyright(c) 2015 Gocharm Inc.
+ */
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../lib/soar.js');
 
-//soar.setDebug( true );
-
-before(function() {
-    soar.config();
-});
 
 describe('Test table joins', function()  {
+
+	before(function() {
+		soar.config();
+	});
 
     it('Simple join', function(done) {
     	var  expr = soar.sql('Person AS psn')
     					.join({table: 'PsnLoc AS pl', on: 'psn.psnID'})
 						.join({table: 'GeoLoc AS geo', on: 'pl.geID'})
     					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
-    					.filter({name: 'psn.psnID', op: '='})
-    					.value(),
+    					.filter({name: 'psn.psnID', op: '='}),
     		 cmd = {query: expr},
     		 query = {psnID: 1};
 
@@ -40,8 +38,7 @@ describe('Test table joins', function()  {
     					.join({table: 'PsnLoc pl', onWhat: 'psn.psnID = pl.psnID'})
     					.join({table: 'GeoLoc geo', onWhat: 'pl.geID=geo.geID'})
     					.column(['psn.psnID psnID', 'psn.name', 'latitude', 'longitude'])
-    					.filter({name: 'psn.psnID', op: '='})
-    					.value(),
+    					.filter({name: 'psn.psnID', op: '='}),
     		 cmd = {
     		 	op: 'query',
     		 	expr: expr
@@ -65,7 +62,7 @@ describe('Test table joins', function()  {
 
         var  cmd = {
                 op: 'list',
-                expr: expr.value()
+                expr: expr
              };
 
         soar.execute(cmd, function(err, list) {

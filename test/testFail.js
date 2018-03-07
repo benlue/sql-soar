@@ -1,20 +1,19 @@
 /*!
-* sql-soar
-* authors: Ben Lue
-* license: MIT License
-* Copyright(c) 2015 Gocharm Inc.
+ * sql-soar
+ * authors: Ben Lue
+ * license: MIT License
+ * Copyright(c) 2015 ~ 2018 Gocharm Inc.
 */
-var  assert = require('assert'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../lib/soar.js');
 
-//soar.setDebug( true );
-
-before(function() {
-    soar.config();
-});
 
 describe('Test errors', function()  {
+
+    before(function() {
+        soar.config();
+    });
 
     it('Wrong command', function(done) {
         var  cmd = {
@@ -28,7 +27,7 @@ describe('Test errors', function()  {
 	});
 	
     it('sql template', function(done) {
-       var  sqls = soar.sqlTemplate('myTable');
+       var  sqls = soar.sql('myTable');
        
        try  {
            sqls.join({});

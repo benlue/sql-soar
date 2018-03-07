@@ -4,45 +4,44 @@
 * license: MIT License
 * Copyright(c) 2015~2016 Gocharm Inc.
 */
-var  assert = require('assert'),
-     dbConn = require('../lib/dbConn.js'),
-     path = require('path'),
-     soar = require('../lib/soar.js');
+const  assert = require('assert'),
+       path = require('path'),
+       soar = require('../lib/soar.js');
 
-var  dbUser = 'your_acc',
-     rightPasswd = 'your_passwd',
-     wrongPasswd = 'xxxx';
+const  dbUser = 'your_acc',
+       rightPasswd = 'your_passwd',
+       wrongPasswd = 'xxxx';
 
-//soar.setDebug( true );
 
 describe('Test configuration and settings', function()  {
 
     it('Reading DB with alias set in the default configurations', function(done) {
         soar.config();
         
-        var  cmd = {list: soar.sql('soar2.Person')};
+        let  cmd = {list: soar.sql('soar2.Person')};
              
         soar.execute(cmd, function(err, list) {
+            //console.log( JSON.stringify(list, null, 4) );
             assert.ifError( err );
-            assert.equal(list.length, 8, 'We have 8 samples.');
+            assert.equal(list.length, 3, 'We have 3 samples.');
             done();
         });
     });
 
     it('Setting wrong DB configurations', function(done) {
-        var  options = {
-            dbConfig: {
-                "host"     : "127.0.0.1",
-                "database" : "soar",
-                "user"     : dbUser,
-                "password" : wrongPasswd,
-                "supportBigNumbers" : true,
-                "connectionLimit"   : 32
-            }
-        };
+        let  options = {
+                dbConfig: {
+                    "host"     : "127.0.0.1",
+                    "database" : "soar",
+                    "user"     : dbUser,
+                    "password" : wrongPasswd,
+                    "supportBigNumbers" : true,
+                    "connectionLimit"   : 4
+                }
+             };
         soar.config( options );
         
-        var  cmd = {
+        let  cmd = {
                 op: 'list',
                 expr: soar.sql('Person')
              };
@@ -54,23 +53,23 @@ describe('Test configuration and settings', function()  {
     });
 
     it('Setting correct DB configurations', function(done) {
-        var  options = {
-            dbConfig: {
-                "host"     : "127.0.0.1",
-                "database" : "soar",
-                "user"     : dbUser,
-                "password" : rightPasswd,
-                "supportBigNumbers" : true,
-                "connectionLimit"   : 32
-            }
-        };
+        let  options = {
+                dbConfig: {
+                    "host"     : "127.0.0.1",
+                    "database" : "soar",
+                    "user"     : dbUser,
+                    "password" : rightPasswd,
+                    "supportBigNumbers" : true,
+                    "connectionLimit"   : 4
+                }
+             };
         soar.config( options );
         
-        var  cmd = {list: soar.sql('Person')};
+        let  cmd = {list: soar.sql('Person')};
              
         soar.execute(cmd, function(err, list) {
             assert.ifError( err );
-            assert.equal(list.length, 8, 'We have 8 samples.');
+            assert.equal(list.length, 5, 'We have 5 samples.');
             done();
         });
     });
