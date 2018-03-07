@@ -254,7 +254,7 @@ Besides, you can use the same SQL expressions  in all CRUD operations. **soar** 
          
     soar.execute(cmd, {canDrive: true}, {age: 18}, callback);
 
-Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add selected table columns, set query conditions and specify addtional options (such as GROUP BY or ORDER BY). Every SQL expression function returns the expression object itself, so you can chain funcion calls to succintly compose a SQL expressions.
+Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add selected table columns, set query conditions and specify addtional options (such as GROUP BY or ORDER BY). Every SQL expression function returns the expression object itself, so you can chain funcion calls to succintly compose a SQL expression.
 
 What's better, if you keep using some SQL expressions in your applications, you may want to save them into files so you can reuse them. Stored in files, such SQL expressions are also very easy to maintain.
 
