@@ -246,7 +246,7 @@ That's equivalent to:
     
 **soar** will match the input query with the filter section of a SQL expression.
 
-"Well, that looks nice but what's the befenit?" you may ask. The best part of SQL expression is that you can simply specify your query conditions as a JSON object and **soar** will match your query objerct with the **filter** section of a SQL expression. In other words, you're saved from the pains-taking task to re-compose a SQL statement simply becase you've slightly changed your query condition.
+"Well, that looks nice but what's the befenit?" you may ask. The best part of SQL expression is that you can simply specify your query conditions as a JSON object and **soar** will match your query objerct with the **filter** section of a SQL expression. In other words, you're saved from the pains-taking task to re-compose a SQL statement simply becase you've changed your query condition (even very slightly) .
 
 Besides, you can use the same SQL expressions  in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement. For example, you can use the same SQL expression for query to do update:
 
