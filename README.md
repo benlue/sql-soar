@@ -2,17 +2,19 @@ SQL-SOAR
 ========
 
 ## What Is SOAR
-**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike ORM solutions, **soar** gives back to developers the full control of how SQL statements are generated. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike ORM solutions, **soar** gives back to developers the capability to fully control how SQL statements are generated. **soar** has the following interesting features:
 
-+ Reusable SQL: you can formulate a SQL statement into an expression. You can later invoke and reuse that SQL expression with various query conditions.
++ Reusable SQL: you can easily formulate a SQL statement into an expression. You can later invoke and reuse the same SQL expression with various query conditions.
 
-+ Simple and elegant: you don't have to hand code the sql WHERE clause. Just specify the query values and **soar** will do the tedious works for you.
++ Simple and elegant: you don't have to hand code the sql WHERE clause. Just specify the query values and **soar** will do the magic for you.
 
-+ Multiple database access: it's very easy to access multiple databases within an application.
++ Multiple database access: it's very easy to access multiple databases within an application using *soar*.
 
 + Schema manipulation: you can define a table using JSON as the schema notation, and thus manipulate the table definition easily.
 
 + Full control: unlike ORM solutions, you have full control of how SQL is generated and applied.
+
++ Extremely light weight and efficient.
 
 ## What's New
 Here is [what's new](https://github.com/benlue/sql-soar/wiki/New-Features-of-V-1.2.3) of the new release (v1.2.3). You can track how this software evolves in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
