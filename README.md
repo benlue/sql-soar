@@ -429,7 +429,7 @@ Example of doing pagination:
 If you expect a table query should return only one entity (even though there maybe multiple matches to your query), you can use this function.
 
 * tbName: name of the table to be queried. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to query.
-* query: the query condition. Refer to this [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
+* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
 * cb: call back function which will be fed with two parameters: _err_ and _data_. _err_ is the error object (if any) and _data_ is the query result as a plain Javascript object.
 
 Example:
@@ -450,7 +450,11 @@ Example:
 <a name="dynamicList"></a>    
 #### soar.list(tbName, query, cb)
 
-Use this function to query multiple entries from a table.
+Use this function to get multiple entries from a table.
+
+* tbName: name of the table to be queried. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to query.
+* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
+* cb: call back function which will be fed with two parameters: _err_ and list. _err_ is the error object (if any) and _list_ is the query result as a Javascript array. If nothing matches, _list_ will be an empty array.
 
 Example:
 
@@ -466,8 +470,6 @@ Example:
         // 'list' will contain people
         // who is weighted more than 160 and older than 25 
     });
-
-**query** is a query object specifying query conditions. Please refer to this [short article](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to use query objects effectively.
 
 <a name="inClause"></a>   
 ##### List with the IN clause
