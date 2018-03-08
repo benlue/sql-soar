@@ -534,7 +534,7 @@ Example:
 #### soar.runSql(conn, sql, arguments, cb)
 This function can be used to run SQL statements directly if you still need to. Even though SOAR provides quite a few handy functions to access databases, sometimes you may still need to manually build a SQL statement. In such cases, you can use this function.
 
-* conn: the database connection. This parameter is optional. You'll pass in a connecton parameter mostly because you want to do transactions.
+* conn: the database connection. This parameter is optional. You'll pass in a connecton parameter mostly because the SQL statement should be executed within a transactions.
 * sql: the SQL statement to be executed.
 * arguments: data to be filled into the SQL statement (if the given SQL statement is a prepared statement).
 * cb: the call back function with two parameters: _err_ and _result_.
