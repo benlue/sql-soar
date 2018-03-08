@@ -428,6 +428,10 @@ Example of doing pagination:
 
 If you expect a table query should return only one entity (even though there maybe multiple matches to your query), you can use this function.
 
+* tbName: name of the table to be queried. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to query.
+* query: the query condition
+* cb: call back function which will be fed with two parameters: _err_ and _data_. _err_ is the error object (if any) and _data_ is the query result as a plain Javascript object.
+
 Example:
 
     soar.query('Person', {psnID: 1}, function(err, data) {
