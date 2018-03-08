@@ -487,7 +487,11 @@ It's possible to use IN in the where clause, but it has to be done with the more
 <a name="dynamicInsert"></a>    
 #### soar.insert(tbName, data, cb)
 
-Inserting a new entry to a table. 'data' is the data to be inserted. If 'data' contains properties which do not match to table columns, those properties will be ignored.
+Inserting a new entry to a table.
+
+* tbName: name of the table to be inserted. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to do insert.
+* data: the _data_ to be inserted. If _data_ contains any properties which do not match any target table column, those properties will be ignored..
+* cb: call back function which will be fed with two parameters: _err_ and _pk_. _err_ is the error object (if any) and _pk_ is the primary key of the newly inserted entry.
 
 Example:
 
