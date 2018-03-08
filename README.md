@@ -490,7 +490,7 @@ It's possible to use IN in the where clause, but it has to be done with the more
 Inserting a new entry to a table.
 
 * tbName: name of the table to be inserted. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to do insert.
-* data: the _data_ to be inserted. If _data_ contains any properties which do not match any target table column, those properties will be ignored.
+* data: the _data_ to be inserted. If _data_ contains any properties which do not match the target table column, those properties will be ignored.
 * cb: call back function which will be fed with two parameters: _err_ and _pk_. _err_ is the error object (if any) and _pk_ is the primary key of the newly inserted entry.
 
 Example:
@@ -508,7 +508,7 @@ Example:
 Updating data entries in a table.
 
 * tbName: name of the table to be updated. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to update.
-* data: the _data_ to be updated. If _data_ contains any properties which do not match any target table column, those properties will be ignored.
+* data: the _data_ to be updated. If _data_ contains any properties which do not match the target table column, those properties will be ignored.
 * query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
 * cb: call back function which will be fed with an _err_ parameter (if any).
 
@@ -519,7 +519,7 @@ Example:
 <a name="dynamicDelete"></a>    
 #### soar.del(tbName, query, cb)
 
-Deleting entries from a table. 'query' specifies which entries will be deleted.
+Deleting entries of a table.
 
 * tbName: name of the table whose entries will be deleted. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to do deletion.
 * query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
@@ -531,13 +531,13 @@ Example:
     
 
 <a name="runsql"></a>    
-#### soar.runSql(conn, sql, parameters, cb)
-This function can be used to run SQL statements directly if you still need to. Even though SOAR provides quite a few handy functions to access databases, sometimes you may still need to manually build a SQL statement and execute it.
-In such cases, you can use this function.
+#### soar.runSql(conn, sql, arguments, cb)
+This function can be used to run SQL statements directly if you still need to. Even though SOAR provides quite a few handy functions to access databases, sometimes you may still need to manually build a SQL statement. In such cases, you can use this function.
 
-The _conn_ argument is the database connection. It's optional. You'll pass in a connecton argument mostly because you want to do transactions.
-The _sql_ argument is the SQL statement to be executed, and _parameters_ are data to be filled into the SQL statement (if the given SQL statement is a prepared statement).
-Finally _cb_ is the callback function.
+* conn: the database connection. This parameter is optional. You'll pass in a connecton parameter mostly because you want to do transactions.
+* sql: the SQL statement to be executed.
+* arguments: data to be filled into the SQL statement (if the given SQL statement is a prepared statement).
+* cb: the call back function with two parameters: _err_ and _result_.
 
 Example:
 
@@ -562,8 +562,7 @@ Example:
     soar.getConnection( function(err, conn) {
         // remember to specify database connection in 'cmd'
         var  cmd = {
-                op: 'insert',
-                expr: expr,
+                insert: expr,
                 conn: conn
              },
              data = {name: 'Scott Cooper'};
