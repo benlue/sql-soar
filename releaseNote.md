@@ -1,3 +1,8 @@
+1.3.1
+=====
+
++ Fixed a minor bug which would fail the higher versions of nodes.
+
 1.3.0
 =====
 
