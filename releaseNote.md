@@ -1,7 +1,12 @@
+1.3.2
+=====
+
++ Changed the list count query as suggested by mySql.
+
 1.3.1
 =====
 
-+ Fixed a minor bug which would fail the higher versions of nodes.
++ Fixed a minor bug which would fail with the higher versions of nodes.
 
 1.3.0
 =====
