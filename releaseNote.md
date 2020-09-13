@@ -1,4 +1,4 @@
-1.3.3
+1.3.4
 =====
 
 + Fixed a bug which would case paging error when there is no data.

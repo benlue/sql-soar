@@ -17,7 +17,7 @@ SQL-SOAR
 + Extremely light weight and efficient.
 
 ## What's New
-Here is [what's new](https://github.com/benlue/sql-soar/wiki/New-Features-of-V-1.2.3) of the new release (v1.3.3). You can track how this software evolves in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
+Here is [what's new](https://github.com/benlue/sql-soar/wiki/New-Features-of-V-1.2.3) of the new release (v1.3.4). You can track how this software evolves in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
 
 + [v1.2.0] SQL expressions can be stored as files. That makes reuse even easier.
 

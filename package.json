@@ -1,6 +1,6 @@
 {
   "name": "sql-soar",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "A SQL build and query tool for node.js.",
   "engines": "8.9.1",
   "main": "lib/soar.js",
