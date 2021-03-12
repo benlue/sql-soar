@@ -1,6 +1,9 @@
+1.3.5
+=====
++ The total count of a pagination list query will not be cached any more. Such caching could return wrong entry count.
+  
 1.3.4
 =====
-
 + Fixed a bug which would case paging error when there is no data.
 
 1.3.2
