@@ -1,3 +1,7 @@
+1.3.7
+=====
++ No longer cache the generated SQL statements. The original SQL resue rule does not fully qualify all possible query conditions.
+
 1.3.5
 =====
 + The total count of a pagination list query will not be cached any more. Such caching could return wrong entry count.
