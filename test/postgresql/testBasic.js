@@ -15,42 +15,31 @@ describe('PostgreSQL Database Tests', function()  {
     });
 
     describe('Basic CRUD Operations', function() {
-        
-        it('Simple query', function(done) {
+
+        it('Simple query', async function() {
             // First test: just list all records to see what's in the database
             var  listExpr = soar.sql('Person');
             var  listCmd = {op: 'list', expr: listExpr};
 
-            soar.execute(listCmd, function(err, allData) {
-                if (err) {
-                    done(err);
-                } else {
-                    assert(Array.isArray(allData), `Expected array, got: ${typeof allData}, value: ${JSON.stringify(allData)}`);
-                    assert(allData.length > 0, `Database should have records, got: ${JSON.stringify(allData)}`);
-                    
-                    // Now try the specific query with the first record's psnID
-                    var  firstRecordId = allData[0].psnID;
-                    var  expr = soar.sql('Person')
-                                    .column(['psnID', 'name'])
-                                    .filter( {name: 'psnID', op: '='} );
+            const  allData = await soar.execute(listCmd);
+            assert(Array.isArray(allData), `Expected array, got: ${typeof allData}, value: ${JSON.stringify(allData)}`);
+            assert(allData.length > 0, `Database should have records, got: ${JSON.stringify(allData)}`);
 
-                    var  cmd = {op: 'query', expr: expr},
-                         query = {psnID: firstRecordId};
+            // Now try the specific query with the first record's psnID
+            var  firstRecordId = allData[0].psnID;
+            var  expr = soar.sql('Person')
+                            .column(['psnID', 'name'])
+                            .filter( {name: 'psnID', op: '='} );
 
-                    soar.execute(cmd, query, function(err, data) {
-                        if (err) {
-                            done(err);
-                        } else {
-                            assert(data !== null && data !== undefined, `Query returned: ${JSON.stringify(data)}`);
-                            assert(data.psnID === firstRecordId, `Expected psnID=${firstRecordId}, got: ${JSON.stringify(data)}`);
-                            done();
-                        }
-                    });
-                }
-            });
+            var  cmd = {op: 'query', expr: expr},
+                 query = {psnID: firstRecordId};
+
+            const  data = await soar.execute(cmd, query);
+            assert(data !== null && data !== undefined, `Query returned: ${JSON.stringify(data)}`);
+            assert(data.psnID === firstRecordId, `Expected psnID=${firstRecordId}, got: ${JSON.stringify(data)}`);
         });
 
-        it('List records', function(done) {
+        it('List records', async function() {
             var  expr = soar.sql('Person')
                             .column(['psnID', 'name', 'age']);
 
@@ -59,51 +48,38 @@ describe('PostgreSQL Database Tests', function()  {
                     expr: expr
                  };
 
-            soar.execute(cmd, function(err, list) {
-                if (err) {
-                    
-                    done(err); // Fail test if database connection fails
-                } else {
-                    assert(Array.isArray(list), 'Should return an array');
-                    done();
-                }
-            });
+            const  list = await soar.execute(cmd);
+            assert(Array.isArray(list), 'Should return an array');
         });
 
-        it('Insert record', function(done) {
+        it('Insert record', async function() {
             const  data = {
                     name: 'Test User',
                     age: 25,
                     weight: 70
                  };
 
-            soar.insert('Person', data, function(err, pk) {
-                if (err)        
-                    done(err); // Fail test if database connection fails
-                else {
-                    assert(pk, 'Should return primary key');
-                    done();
-                }
-            });
+            const  pk = await soar.insert('Person', data);
+            assert(pk, 'Should return primary key');
         });
 
-        it('Update record', function(done) {
+        it('Update record', async function() {
             const  data = {age: 26},
                    query = {name: 'Test User'};
 
-            soar.update('Person', data, query, done)
+            await soar.update('Person', data, query);
         });
 
-        it('Delete record', function(done) {
+        it('Delete record', async function() {
             var  query = {name: 'Test User'};
 
-            soar.del('Person', query, done)
+            await soar.del('Person', query);
         });
     });
 
     describe('Schema Operations', function() {
-        
-        it('Create table', function(done) {
+
+        it('Create table', async function() {
             var  schema = {
                     title: 'TestTable',
                     columns: {
@@ -114,30 +90,23 @@ describe('PostgreSQL Database Tests', function()  {
                     primary: ['id']
                  };
 
-            soar.createTable(schema, done)
+            await soar.createTable(schema);
         });
 
-        it('Describe table', function(done) {
-            soar.describeTable('TestTable', function(err, schema) {
-                if (err) {
-                    
-                    done(err); // Fail test if database connection fails
-                } else {
-                    assert(schema, 'Should return schema');
-                    assert(schema.columns, 'Should have columns');
-                    done();
-                }
-            });
+        it('Describe table', async function() {
+            const  schema = await soar.describeTable('TestTable');
+            assert(schema, 'Should return schema');
+            assert(schema.columns, 'Should have columns');
         });
 
-        it('Drop table', function(done) {
-            soar.deleteTable('TestTable', done)
+        it('Drop table', async function() {
+            await soar.deleteTable('TestTable');
         });
     });
 
     describe('PostgreSQL-specific Features', function() {
-        
-        it('Boolean data type', function(done) {
+
+        it('Boolean data type', async function() {
             var  schema = {
                     title: 'BoolTest',
                     columns: {
@@ -147,23 +116,14 @@ describe('PostgreSQL Database Tests', function()  {
                     primary: ['id']
                  };
 
-            soar.createTable(schema, function(err) {
-                if (err) {
-                    
-                    done(err); // Fail test if database connection fails
-                } else {
-                    // Clean up
-                    soar.deleteTable('BoolTest', function(cleanupErr) {
-                        done();
-                    });
-                }
-            });
+            await soar.createTable(schema);
+            // Clean up
+            await soar.deleteTable('BoolTest');
         });
 
-        it('Array support (if implemented)', function(done) {
+        it('Array support (if implemented)', async function() {
             // This test would be for PostgreSQL-specific array features
             // Skip for now as it's not implemented yet
-            done();
         });
     });
 });

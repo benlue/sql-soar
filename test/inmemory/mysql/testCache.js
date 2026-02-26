@@ -1,17 +1,20 @@
 /**
- * sql-soar mySQL test cases
+ * sql-soar MySQL in-memory test cases (mysql-memory-server)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryMysqlConfig } = require('../../helpers/mysqlMemorySetup');
 
-before(function() {
-    soar.config({"dbConfig": require('./config.json')})
+before(async function() {
+    this.timeout(60000);
+    const  { config } = await createInMemoryMysqlConfig();
+    soar.config(config);
 })
 
 
-describe('Test sql statement caching', function()  {
+describe('Test sql statement caching (MySQL in-memory)', function()  {
 
     it('Query statement', async function() {
         var  expr = soar.sql('Person')
@@ -25,11 +28,9 @@ describe('Test sql statement caching', function()  {
              query = {psnID: 1};
 
         const data = await soar.execute(option, query);
-        //console.log( JSON.stringify(expr.value(), null, 4) );
         assert( data, 'Missing psnID=1 data');
         assert.equal( data.name, 'John', 'Person name not matched.');
 
-		//console.log('cached statement: ' + expr.value()._sql);
 		// do it again
 		const data2 = await soar.execute(option, query);
         assert( data2, 'Missing psnID=1 data');
@@ -46,15 +47,11 @@ describe('Test sql statement caching', function()  {
         };
 
         const result1 = await soar.execute(cmd);
-        //console.log( JSON.stringify(expr.value(), null, 4) );
-        //console.log('result is\n%s', JSON.stringify(result1.list, null, 4));
-        //console.log('existing count is ' + expr.value()._count);
         assert.equal( result1.count, 5, 'Totally 5 persons.');
         assert.equal( result1.list.length, 2, 'page size is 2.');
 
         cmd.range = soar.range(2, 2);
         const result2 = await soar.execute(cmd);
-        //console.log( JSON.stringify(result2.list, null, 4) );
         assert.equal( result2.count, 5, 'Totally 5 persons.');
         assert.equal( result2.list.length, 2, 'page size is 2.');
     });
@@ -70,14 +67,11 @@ describe('Test sql statement caching', function()  {
         };
 
         const result1 = await soar.execute(option);
-        //console.log( JSON.stringify(expr.value(), null, 4) );
-        //console.log('existing count is ' + expr.value()._count);
         assert.equal( result1.count, 5, 'Totally 5 persons.');
         assert.equal( result1.list.length, 2, 'page size is 2.');
 
         option.range = soar.range(2, 2);
         const result2 = await soar.execute(option);
-        //console.log( JSON.stringify(result2.list, null, 4) );
         assert.equal( result2.count, 5, 'Totally 5 persons.');
         assert.equal( result2.list.length, 2, 'page size is 2.');
     });
@@ -94,15 +88,11 @@ describe('Test sql statement caching', function()  {
         };
 
         const result1 = await soar.execute(option);
-        //console.log( JSON.stringify(expr.value(), null, 4) );
-        //console.log('existing count is ' + expr.value()._count);
         assert.equal( result1.count, 5, 'Totally 5 persons.');
         assert.equal( result1.list.length, 2, 'page size is 2.');
 
         var query = {addr: true};
         const result2 = await soar.execute(option, query);
-        //console.log('total count is ' + result2.count);
-        //console.log( JSON.stringify(result2.list, null, 4) );
         assert.equal( result2.count, 4, 'Totally 4 persons.');
         assert.equal( result2.list.length, 2, 'page size is 2.');
     });

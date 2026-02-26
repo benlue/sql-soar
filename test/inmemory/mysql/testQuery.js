@@ -1,18 +1,21 @@
 /**
- * sql-soar mySQL test cases
+ * sql-soar MySQL in-memory test cases (mysql-memory-server)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryMysqlConfig } = require('../../helpers/mysqlMemorySetup');
 
 
-before(function() {
-    soar.config({"dbConfig": require('./config.json')})
+before(async function() {
+    this.timeout(60000);
+    const  { config } = await createInMemoryMysqlConfig();
+    soar.config(config);
 })
 
 
-describe('Test sql expression', function()  {
+describe('Test sql expression (MySQL in-memory)', function()  {
 
     it('Simple query', async function() {
         var  expr = soar.sql('Person')
@@ -80,7 +83,6 @@ describe('Test sql expression', function()  {
              query = {psnID: 1};
 
         const data = await soar.execute(option, query);
-        //console.log( JSON.stringify(data, null, 4) );
         assert( data, 'Missing psnID=1 data');
         assert.equal( data.name, 'John', 'Person name not matched.');
     });
@@ -89,7 +91,6 @@ describe('Test sql expression', function()  {
         var  option = {list: soar.sql('Person')};
 
         const list = await soar.execute(option);
-        //console.log( JSON.stringify(list, null, 4) );
         assert.equal( list.length, 5, 'Totally 5 persons.');
     });
 
@@ -113,7 +114,6 @@ describe('Test sql expression', function()  {
 
         const data = await soar.execute(option, query);
         assert.equal( data.length, 3, 'Should have 3 matches');
-        //console.log( JSON.stringify(data, null, 4) );
     });
 
     it('List with the IN condition', async function() {
@@ -126,7 +126,6 @@ describe('Test sql expression', function()  {
         };
 
         const list = await soar.execute(cmd, {psnID: [1, 3]});
-        //console.log( JSON.stringify(list, null, 4) );
         assert.equal( list.length, 2, 'Should return 2 persons.');
     });
 
@@ -137,7 +136,6 @@ describe('Test sql expression', function()  {
              };
 
         const result = await soar.execute(option);
-        //console.log( JSON.stringify(result.list, null, 4) );
         assert.equal( result.count, 5, 'Totally 5 persons.');
         assert.equal( result.list.length, 2, 'page size is 2.');
     });
@@ -201,7 +199,6 @@ describe('Test sql expression', function()  {
         cmd.op = 'query';
         const result = await soar.execute(cmd, query);
         var  mdTime = result.modifyTime;
-        //console.log('written time: %d, readback time: %d', now.getSeconds(), mdTime.getSeconds());
         assert.equal( result.name, 'John Mayer', 'Person name not matched.');
         assert.equal( now.getMinutes(), mdTime.getMinutes(), 'modify time does not match');
 
@@ -277,7 +274,6 @@ describe('Test sql expression', function()  {
              data = {name: 'Scott Cooper'};
 
         const value = await soar.execute(cmd, data, null);
-        //console.log('inserted key is\n%s', JSON.stringify(value));
         assert(value, 'Failed to insert');
 
         cmd.op = 'delete';
@@ -317,12 +313,11 @@ describe('Test sql expression', function()  {
              p = ['David%'];
 
         const result = await soar.runSql(sql, p);
-        //console.log(JSON.stringify(result, null, 4));
         assert.equal(result[0].count, 1, 'one match');
     });
 });
 
-describe('Test short hand', function()  {
+describe('Test short hand (MySQL in-memory)', function()  {
 
     it('simple query', async function() {
         const data = await soar.query('Person', {name: 'David'});
@@ -363,7 +358,6 @@ describe('Test short hand', function()  {
             addr: 'San Fransisco'
         };
         await soar.update('Person', updData, {psnID: 2});
-        //console.log( JSON.stringify(data, null, 4) );
 
         const data = await soar.query('Person', {psnID: 2});
         assert.equal(data.name, 'David Black', 'full name changed to David Black');
@@ -376,7 +370,6 @@ describe('Test short hand', function()  {
 
     it('create & delete', async function() {
         const pk = await soar.insert('Person', {name: 'Millman'});
-        //console.log( JSON.stringify(pk, null, 4) );
 
         await soar.del('Person', pk);
     });

@@ -1,9 +1,9 @@
 {
   "name": "@conwell/sql-soar",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "A SQL build and query tool for node.js.",
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "main": "lib/soar.js",
   "repository": {
@@ -33,11 +33,15 @@
     "setup:postgres": "podman exec -i postgres-test psql -U soaruser -d soar < test/sampleData/postgresql/schema.sql && podman exec -i postgres-test psql -U soaruser -d soar < test/sampleData/postgresql/sampleData.sql",
     "start:mysql": "podman run -d --name mysql-test -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=soar -e MYSQL_USER=testuser -e MYSQL_PASSWORD=testpass -p 3306:3306 -v mysql-data:/var/lib/mysql mysql:8.0",
     "stop:mysql": "podman stop mysql-test && podman rm mysql-test",
-    "setup:mysql": "podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/schema.sql && podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/sampleData.sql"
+    "setup:mysql": "podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/schema.sql && podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/sampleData.sql",
+    "setup:mysql:memory": "podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/schema_memory.sql && podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/sampleData.sql",
+    "test:pg:mem": "mocha test/inmemory/postgresql/*.js --timeout 15000",
+    "test:mysql:mem": "mocha test/inmemory/mysql/*.js --timeout 60000"
   },
   "devDependencies": {
-    "async": "^3.2.6",
-    "mocha": "^10.2.0"
+    "@electric-sql/pglite": "^0.2.0",
+    "mocha": "^10.2.0",
+    "mysql-memory-server": "^1.14.0"
   },
   "dependencies": {
     "mysql2": "^3.6.0",

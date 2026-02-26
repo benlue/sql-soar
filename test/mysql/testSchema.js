@@ -14,7 +14,7 @@ before(function() {
 
 describe('Schema manipulation with connection specified', function()  {
 
-    it('Create table', function(done) {
+    it('Create table', async function() {
     	var  schema = {
     		 	title: 'TestPage',
 			    columns: {
@@ -27,22 +27,18 @@ describe('Schema manipulation with connection specified', function()  {
 			    primary:  ['page_id']
     		 };
 
-    	soar.getConnection(function(err, conn)  {
-    		soar.createTable( conn, schema, function(err)  {
-    			assert(!err, 'Creation failed');
+    	const conn = await soar.getConnection();
+    	await soar.createTable( conn, schema);
+    	assert(true, 'Creation failed');
 
-    			soar.describeTable(conn, 'TestPage', function(err, schema) {
-    				//console.log( JSON.stringify(schema.columns, null, 2) );
-    				assert.equal(schema.title, 'TestPage', 'table name is wrong');
-    				assert.equal(Object.keys(schema.columns).length, 2, 'table has 2 columns');
-                    conn.release();
-    				done();
-    			})
-    		});
-    	});
+    	const resultSchema = await soar.describeTable(conn, 'TestPage');
+    	//console.log( JSON.stringify(resultSchema.columns, null, 2) );
+    	assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+    	assert.equal(Object.keys(resultSchema.columns).length, 2, 'table has 2 columns');
+        conn.release();
     });
 
-    it('Alter table -- add', function(done) {
+    it('Alter table -- add', async function() {
     	var  schema = {
     		title: 'TestPage',
     		add: {
@@ -51,41 +47,35 @@ describe('Schema manipulation with connection specified', function()  {
     				psnID: {type: 'integer', format: 'int64'}
     			},
     			index: {
-		            IDX_PAGE_YEAR: {
-		                columns: ['year']
-		            }
-		        },
-		        foreignKey: {
-		            FK_pageRpsn: {
-		                key: 'psnID',
-		                reference: 'Person.psnID',
-		                integrity: {
-		                    delete: 'cascade',
-		                    update: 'cascade'
-		                }
-		            }
-		        }
+	            IDX_PAGE_YEAR: {
+	                columns: ['year']
+	            }
+	        },
+	        foreignKey: {
+	            FK_pageRpsn: {
+	                key: 'psnID',
+	                reference: 'Person.psnID',
+	                integrity: {
+	                    delete: 'cascade',
+	                    update: 'cascade'
+	                }
+	            }
+	        }
     		}
     	};
 
-    	soar.getConnection(function(err, conn)  {
-    		soar.alterTable( conn, schema, function(err)  {
-    			if (err)
-    				console.log( err.stack );
-    			assert(!err, 'Altering table failed');
+    	const conn = await soar.getConnection();
+    	await soar.alterTable( conn, schema);
+    	assert(true, 'Altering table failed');
 
-    			soar.describeTable(conn, 'TestPage', function(err, schema) {
-    				//console.log( JSON.stringify(schema.columns, null, 2) );
-    				assert.equal(schema.title, 'TestPage', 'table name is wrong');
-    				assert.equal(Object.keys(schema.columns).length, 4, 'table has 4 columns');
-                    conn.release();
-    				done();
-    			})
-    		});
-    	});
+    	const resultSchema = await soar.describeTable(conn, 'TestPage');
+    	//console.log( JSON.stringify(resultSchema.columns, null, 2) );
+    	assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+    	assert.equal(Object.keys(resultSchema.columns).length, 4, 'table has 4 columns');
+        conn.release();
     });
 
-    it('Alter table -- drop', function(done) {
+    it('Alter table -- drop', async function() {
         var  schema = {
             title: 'TestPage',
             drop: {
@@ -95,37 +85,28 @@ describe('Schema manipulation with connection specified', function()  {
             }
         };
 
-        soar.getConnection(function(err, conn)  {
-            soar.alterTable( conn, schema, function(err)  {
-                if (err)
-                    console.log( err.stack );
-                assert(!err, 'Altering table failed');
+        const conn = await soar.getConnection();
+        await soar.alterTable( conn, schema);
+        assert(true, 'Altering table failed');
 
-                soar.describeTable(conn, 'TestPage', function(err, schema) {
-                    //console.log( JSON.stringify(schema.columns, null, 2) );
-                    assert.equal(schema.title, 'TestPage', 'table name is wrong');
-                    assert.equal(Object.keys(schema.columns).length, 3, 'table has 3 columns');
-                    conn.release();
-                    done();
-                })
-            });
-        });
+        const resultSchema = await soar.describeTable(conn, 'TestPage');
+        //console.log( JSON.stringify(resultSchema.columns, null, 2) );
+        assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+        assert.equal(Object.keys(resultSchema.columns).length, 3, 'table has 3 columns');
+        conn.release();
     });
 
-    it('Delete table', function(done) {
-    	soar.getConnection(function(err, conn)  {
-    		soar.deleteTable(conn, 'TestPage', function(err)  {
-    			assert(!err, 'Deletion failed');
-                conn.release();
-    			done();
-    		});
-    	});
+    it('Delete table', async function() {
+    	const conn = await soar.getConnection();
+    	await soar.deleteTable(conn, 'TestPage');
+    	assert(true, 'Deletion failed');
+        conn.release();
     });
 });
 
 describe('Schema manipulation without connection specified', function()  {
 
-    it('Alter table -- change column', function(done) {
+    it('Alter table -- change column', async function() {
     	var  schema = {
     		title: 'GeoLoc',
     		alter: {
@@ -135,35 +116,24 @@ describe('Schema manipulation without connection specified', function()  {
     		}
     	};
 
-		soar.alterTable( schema, function(err)  {
-			if (err)
-				console.log( err.stack );
-			assert(!err, 'Altering table failed');
-            
-            soar.describeTable('GeoLoc', function(err, nschema) {
-                //console.log("table columns\n%s", JSON.stringify(nschema.columns, null, 4));
-                assert(nschema.columns.geoAddr, 'geoAddr is the new column name');
-                
-                schema.alter.column = {geoAddr: {title: 'addr', type: 'string', maxLength: 256}};
-                
-                soar.alterTable( schema, function(err)  {
-        			if (err)
-        				console.log( err.stack );
-                    done();
-                });
-            });
-		});
-    });
-    
-    it('rename table', function(done) {
-        soar.renameTable('PsnLoc', 'PsnLoc0', function(err)  {
-            soar.renameTable('PsnLoc0', 'PsnLoc', function(err)  {
-                done();
-            });
-        });
+		await soar.alterTable( schema);
+		assert(true, 'Altering table failed');
+
+        const nschema = await soar.describeTable('GeoLoc');
+        //console.log("table columns\n%s", JSON.stringify(nschema.columns, null, 4));
+        assert(nschema.columns.geoAddr, 'geoAddr is the new column name');
+
+        schema.alter.column = {geoAddr: {title: 'addr', type: 'string', maxLength: 256}};
+
+        await soar.alterTable( schema);
     });
 
-    it('Create table', function(done) {
+    it('rename table', async function() {
+        await soar.renameTable('PsnLoc', 'PsnLoc0');
+        await soar.renameTable('PsnLoc0', 'PsnLoc');
+    });
+
+    it('Create table', async function() {
         var  schema = {
                 title: 'TestPage',
                 columns: {
@@ -176,19 +146,16 @@ describe('Schema manipulation without connection specified', function()  {
                 primary:  ['page_id']
              };
 
-        soar.createTable( schema, function(err)  {
-            assert(!err, 'Creation failed');
+        await soar.createTable( schema);
+        assert(true, 'Creation failed');
 
-            soar.describeTable('TestPage', function(err, schema) {
-                //console.log( JSON.stringify(schema.columns, null, 2) );
-                assert.equal(schema.title, 'TestPage', 'table name is wrong');
-                assert.equal(Object.keys(schema.columns).length, 2, 'table has 2 columns');
-                done();
-            })
-        });
+        const resultSchema = await soar.describeTable('TestPage');
+        //console.log( JSON.stringify(resultSchema.columns, null, 2) );
+        assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+        assert.equal(Object.keys(resultSchema.columns).length, 2, 'table has 2 columns');
     });
 
-    it('Alter table -- add', function(done) {
+    it('Alter table -- add', async function() {
         var  schema = {
             title: 'TestPage',
             add: {
@@ -214,21 +181,16 @@ describe('Schema manipulation without connection specified', function()  {
             }
         };
 
-        soar.alterTable( schema, function(err)  {
-            if (err)
-                console.log( err.stack );
-            assert(!err, 'Altering table failed');
+        await soar.alterTable( schema);
+        assert(true, 'Altering table failed');
 
-            soar.describeTable('TestPage', function(err, schema) {
-                //console.log( JSON.stringify(schema.columns, null, 2) );
-                assert.equal(schema.title, 'TestPage', 'table name is wrong');
-                assert.equal(Object.keys(schema.columns).length, 4, 'table has 4 columns');
-                done();
-            })
-        });
+        const resultSchema = await soar.describeTable('TestPage');
+        //console.log( JSON.stringify(resultSchema.columns, null, 2) );
+        assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+        assert.equal(Object.keys(resultSchema.columns).length, 4, 'table has 4 columns');
     });
 
-    it('Alter table -- drop', function(done) {
+    it('Alter table -- drop', async function() {
         var  schema = {
             title: 'TestPage',
             drop: {
@@ -238,25 +200,18 @@ describe('Schema manipulation without connection specified', function()  {
             }
         };
 
-        soar.alterTable( schema, function(err)  {
-            if (err)
-                console.log( err.stack );
-            assert(!err, 'Altering table failed');
+        await soar.alterTable( schema);
+        assert(true, 'Altering table failed');
 
-            soar.describeTable('TestPage', function(err, schema) {
-                //console.log( JSON.stringify(schema.columns, null, 2) );
-                assert.equal(schema.title, 'TestPage', 'table name is wrong');
-                assert.equal(Object.keys(schema.columns).length, 3, 'table has 3 columns');
-                done();
-            })
-        });
+        const resultSchema = await soar.describeTable('TestPage');
+        //console.log( JSON.stringify(resultSchema.columns, null, 2) );
+        assert.equal(resultSchema.title, 'TestPage', 'table name is wrong');
+        assert.equal(Object.keys(resultSchema.columns).length, 3, 'table has 3 columns');
     });
 
-    it('Delete table', function(done) {
-        soar.deleteTable('TestPage', function(err)  {
-            assert(!err, 'Deletion failed');
-            done();
-        });
+    it('Delete table', async function() {
+        await soar.deleteTable('TestPage');
+        assert(true, 'Deletion failed');
     });
- 
+
 });

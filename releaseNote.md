@@ -2,6 +2,17 @@
 
 ## What's New
 
+### v3.0.0
+- **Async/Await API (Breaking Change)** — All exported functions now return Promises instead of using callbacks. This is a breaking change for all callers.
+  - `soar.query()`, `soar.list()`, `soar.insert()`, `soar.update()`, `soar.del()`, `soar.execute()`, `soar.runSql()`, `soar.getConnection()`, and all schema management functions are now async
+  - Pagination with `soar.range()` now returns `{list, count}` instead of passing `(err, list, count)` to a callback
+  - Transaction methods (`getConnection`, `beginTransaction`, `commit`, `rollback`) are all async
+- **In-Memory Testing** — Tests can now run without external database servers
+  - PostgreSQL tests use [PGlite](https://github.com/electric-sql/pglite) (real PostgreSQL compiled to WebAssembly, runs in-process)
+  - MySQL tests use [mysql-memory-server](https://github.com/Sebastian-Webster/mysql-memory-server-nodejs) (downloads and runs a real MySQL binary as a child process)
+  - Run with `npm run test:pg:mem` and `npm run test:mysql:mem`
+- **Package renamed** to `@conwell/sql-soar`
+
 ### v2.1.0
 - **Column Reference Filters** - Enhanced filter system now supports column-to-column comparisons using `@` prefix notation
   - Use `@column_name` in filter values to reference other columns instead of parameters

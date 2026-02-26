@@ -1,18 +1,21 @@
 /**
- * sql-soar postgreSQL test cases
+ * sql-soar PostgreSQL in-memory test cases (PGlite)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryPgConfig } = require('../../helpers/pgSetup');
 
 
-before(function() {
-    soar.config({dbConfig: require('./config.json')})
+before(async function() {
+    this.timeout(15000);    // PGlite WASM init takes a moment
+    const  config = await createInMemoryPgConfig();
+    soar.config(config);
 })
 
 
-describe('Test sql expression', function()  {
+describe('Test sql expression (PGlite in-memory)', function()  {
 
     it('Simple query', async function() {
         const  expr = soar.sql('Person')
@@ -80,7 +83,6 @@ describe('Test sql expression', function()  {
              query = {psnID: 1};
 
         const  data = await soar.execute(option, query);
-        //console.log( JSON.stringify(data, null, 4) );
         assert( data, 'Missing psnID=1 data');
         assert.equal( data.name, 'John Doe', 'Person name not matched.');
     });
@@ -89,8 +91,7 @@ describe('Test sql expression', function()  {
         var  option = {list: soar.sql('Person')};
 
         const  list = await soar.execute(option);
-        //console.log( JSON.stringify(list, null, 4) );
-        assert.equal( list.length, 13, 'Totally 5 persons.');
+        assert.equal( list.length, 13, 'Totally 13 persons.');
     });
 
     it('List with OR filter', async function() {
@@ -113,7 +114,6 @@ describe('Test sql expression', function()  {
 
         const  data = await soar.execute(option, query);
         assert.equal( data.length, 6, 'Should have 6 matches');
-        //console.log( JSON.stringify(data, null, 4) );
     });
 
     it('List with the IN condition', async function() {
@@ -126,7 +126,6 @@ describe('Test sql expression', function()  {
                     };
 
         const  list = await soar.execute(cmd, {psnID: [1, 3]});
-        //console.log( JSON.stringify(list, null, 4) );
         assert.equal( list.length, 2, 'Should return 2 persons.');
     });
 
@@ -137,7 +136,6 @@ describe('Test sql expression', function()  {
                         };
 
         const  result = await soar.execute(cmd);
-        //console.log( JSON.stringify(result.list, null, 4) );
         assert.equal( result.count, 13, 'Totally 13 persons.');
         assert.equal( result.list.length, 2, 'page size is 2.');
     });
@@ -207,107 +205,6 @@ describe('Test sql expression', function()  {
         await soar.execute(cmd, {name: 'John Doe'}, query);
     });
 
-    xit('Insert and delete with transactions', async function() {
-        var  expr = soar.sql('Person')
-                        .column(['psnID', 'name'])
-                        .filter( {name: 'psnID', op: '='} );
-
-        const  conn = await soar.getConnection();
-        try {
-            await conn.query('BEGIN');
-
-            var  option = {
-                    insert: expr,
-                    conn: conn
-                 },
-                 data = {name: 'Scott Cooper'};
-
-            const  value = await soar.execute(option, data);
-            assert(value, 'Failed to insert');
-
-            delete option.insert;
-            option.delete = expr;
-            await soar.execute(option, value);
-
-            await conn.query('COMMIT');
-        }
-        catch (e)  {
-            await conn.query('ROLLBACK');
-            throw e;
-        }
-        finally  {
-            conn.release();
-        }
-    });
-
-    xit('Insert and delete without specifying table columns', async function() {
-        var  expr = soar.sql('Person')
-                        .filter( {name: 'psnID', op: '='} );
-
-        const  conn = await soar.getConnection();
-        try {
-            await conn.query('BEGIN');
-
-            var  option = {
-                    op: 'insert',
-                    expr: expr,
-                    conn: conn
-                 },
-                 data = {name: 'Scott Cooper', dob: new Date()};
-
-            const  value = await soar.execute(option, data);
-            assert(value, 'Failed to insert');
-
-            option.op = 'delete';
-            await soar.execute(option, value);
-
-            await conn.query('COMMIT');
-        }
-        catch (e)  {
-            await conn.query('ROLLBACK');
-            throw e;
-        }
-        finally  {
-            conn.release();
-        }
-    });
-
-    xit('Use join expression to do insert & delete', async function() {
-    	var  expr = soar.sql('Person AS psn')
-    					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
-    					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
-    					.column(['psn.psnID', 'psn.name', 'latitude', 'longitude'])
-    					.filter({name: 'psn.psnID', op: '='});
-
-        const  conn = await soar.getConnection();
-        try {
-            await conn.query('BEGIN');
-
-            var  cmd = {
-                    op: 'insert',
-                    expr: expr,
-                    conn: conn
-                 },
-                 data = {name: 'Scott Cooper'};
-
-            const  value = await soar.execute(cmd, data);
-            //console.log('inserted key is\n%s', JSON.stringify(value));
-            assert(value, 'Failed to insert');
-
-            cmd.op = 'delete';
-            await soar.execute(cmd, value);
-
-            await conn.query('COMMIT');
-        }
-        catch (e)  {
-            await conn.query('ROLLBACK');
-            throw e;
-        }
-        finally  {
-            conn.release();
-        }
-    });
-
     it('Use join expression to do update', async function() {
     	var  expr = soar.sql('Person AS psn')
     					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
@@ -338,12 +235,11 @@ describe('Test sql expression', function()  {
                p = ['Frank%'];
 
         const  result = await soar.runSql(sql, p);
-        //    console.log(JSON.stringify(result, null, 4));
         assert.equal(result.rows[0].count, 1, 'one match');
     });
 });
 
-describe('Test short hand', function()  {
+describe('Test short hand (PGlite in-memory)', function()  {
 
     it('simple query', async function() {
         const  data = await soar.query('Person', {name: 'Jane Smith'});
@@ -384,7 +280,6 @@ describe('Test short hand', function()  {
                         addr: 'San Fransisco'
                     };
         await soar.update('Person', updData, {psnID: 2});
-        //console.log( JSON.stringify(data, null, 4) );
 
         const  data = await soar.query('Person', {psnID: 2});
         assert.equal(data.name, 'David Black', 'full name changed to David Black');
@@ -397,7 +292,6 @@ describe('Test short hand', function()  {
 
     it('create & delete', async function() {
         const  pk = await soar.insert('Person', {name: 'Millman'});
-        //console.log( JSON.stringify(pk, null, 4) );
 
         await soar.del('Person', pk);
     });

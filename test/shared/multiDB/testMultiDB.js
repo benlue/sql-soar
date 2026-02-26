@@ -35,7 +35,7 @@ describe('Access multiple databases', function()  {
         ]);
     });
 
-    it('Simple query', function(done) {
+    it('Simple query', async function() {
         var  expr = soar.sql('soar.Person')
                         .column(['psnID', 'name'])
                         .filter( {name: 'psnID', op: '='} );
@@ -46,45 +46,38 @@ describe('Access multiple databases', function()  {
              },
              query = {psnID: 1};
 
-        soar.execute(cmd, query, function(err, data) {
-            assert( data, 'Missing psnID=1 data');
-            assert.equal( data.name, 'John', 'Person name not matched.');
-            
-            expr = soar.sql('soar2.Person')
-                       .filter( {name: 'psnID', op: '='} );
-            cmd.expr = expr;
-            
-            soar.execute(cmd, query, function(err, data) {
-                assert.equal( data.name, 'Steve', 'name should be Steve');
-                done();
-            });
-        });
+        const  data = await soar.execute(cmd, query);
+        assert( data, 'Missing psnID=1 data');
+        assert.equal( data.name, 'John', 'Person name not matched.');
+
+        expr = soar.sql('soar2.Person')
+                   .filter( {name: 'psnID', op: '='} );
+        cmd.expr = expr;
+
+        const  data2 = await soar.execute(cmd, query);
+        assert.equal( data2.name, 'Steve', 'name should be Steve');
     });
 
-    it('List query', function(done) {
+    it('List query', async function() {
         var  expr = soar.sql('soar.Person')
                         .filter( {name: 'psnID', op: '='} ),
              cmd = {
                  op: 'list',
                  expr: expr
              };
-        soar.execute(cmd, null, function(err, list) {
-            assert.equal( list.length, 5, 'Should have 5 persons.');
+        const  list = await soar.execute(cmd, null);
+        assert.equal( list.length, 5, 'Should have 5 persons.');
 
-            expr = soar.sql('soar2.Person')
-                       .filter( {name: 'psnID', op: '='} );
-            cmd.expr = expr;
+        expr = soar.sql('soar2.Person')
+                   .filter( {name: 'psnID', op: '='} );
+        cmd.expr = expr;
 
-            soar.execute( cmd, null, function(err, list) {
-                console
-                assert.equal( list.length, 3, 'Should return 3 records.');
-                assert.equal(list[2].name, 'Jeremy', 'Person #3 is Jeremy.');
-                done();
-            });
-        });
+        const  list2 = await soar.execute(cmd, null);
+        assert.equal( list2.length, 3, 'Should return 3 records.');
+        assert.equal(list2[2].name, 'Jeremy', 'Person #3 is Jeremy.');
     });
 
-    it('Update', function(done) {
+    it('Update', async function() {
         var  expr = soar.sql('soar.Person')
                         .filter( {name: 'psnID', op: '='} ),
              cmd = {
@@ -93,58 +86,43 @@ describe('Access multiple databases', function()  {
              },
              data = {name: 'John Mayer'};
 
-        soar.execute(cmd, data, {psnID: 1}, function(err) {
-            assert(!err, 'Failed to do update.');
-            
-            cmd.op = 'query';
-            soar.execute(cmd, {psnID: 1}, function(err, data) {
-                assert.equal( data.name, 'John Mayer', 'Person name not matched.');
+        await soar.execute(cmd, data, {psnID: 1});
 
-                // restore data
-                data = {name: 'John'};
-                cmd.op = 'update';
-                soar.execute(cmd, data, {psnID: 1}, function(err) {
-                    assert(!err, 'Failed to do update.');
-                    done();
-                });
-            });
-        })
+        cmd.op = 'query';
+        const  result = await soar.execute(cmd, {psnID: 1});
+        assert.equal( result.name, 'John Mayer', 'Person name not matched.');
+
+        // restore data
+        data = {name: 'John'};
+        cmd.op = 'update';
+        await soar.execute(cmd, data, {psnID: 1});
     });
 
-    it('Insert and delete with transactions', function(done) {
-        soar.getConnection( 'soar', function(err, conn) {
-            assert(!err, 'Failed to create connection.');
+    it('Insert and delete with transactions', async function() {
+        const  conn = await soar.getConnection('soar');
 
-            conn.beginTransaction(function(err) {
-                assert(!err, 'Transaction failed to get started.');
+        await conn.beginTransaction();
 
-                var  data = {name: 'Scott Cooper'},
-                     expr = soar.sql('Person')
-                                .filter( {name: 'psnID', op: '='} ),
-                     cmd = {
-                         op: 'insert',
-                         expr: expr,
-                         conn: conn
-                     };
+        var  data = {name: 'Scott Cooper'},
+             expr = soar.sql('Person')
+                        .filter( {name: 'psnID', op: '='} ),
+             cmd = {
+                 op: 'insert',
+                 expr: expr,
+                 conn: conn
+             };
 
-                soar.execute(cmd, data, null, function(err, psnPK) {
-                    assert(psnPK, 'Failed to insert');
+        const  psnPK = await soar.execute(cmd, data);
+        assert(psnPK, 'Failed to insert');
 
-                    cmd.op = 'delete';
-                    soar.execute(cmd, psnPK, function(err) {
-                        assert(!err, 'Failed to delete.');
-                        conn.commit( function(err) {
-                            assert(!err, 'Transaction failed to commit.');
-                            conn.release();
-                            done();
-                        });
-                    });
-                });
-            });
-        });
+        cmd.op = 'delete';
+        await soar.execute(cmd, psnPK);
+
+        await conn.commit();
+        conn.release();
     });
- 
-    it('Test fields with query', function(done) {
+
+    it('Test fields with query', async function() {
         var  expr = soar.sql('soar2.Person')
                         .column(['psnID'])
                         .filter( {name: 'psnID', op: '='} );
@@ -154,16 +132,13 @@ describe('Access multiple databases', function()  {
                 expr: expr
              },
              query = {psnID: 1};
-        
-        soar.execute(cmd, query, function(err, data) {
-            assert(!err, 'Failed to query');
-            assert.equal( data.psnID, 1, 'Person ID not matched.');
-            assert(!data.name, 'Name fields should have been removed.');
-            done();
-        });
+
+        const  data = await soar.execute(cmd, query);
+        assert.equal( data.psnID, 1, 'Person ID not matched.');
+        assert(!data.name, 'Name fields should have been removed.');
     });
 
-    it('Test fields with list', function(done) {
+    it('Test fields with list', async function() {
         var  expr = soar.sql('soar2.Person')
                         .column(['psnID'])
                         .filter( {name: 'psnID', op: '='} );
@@ -173,11 +148,8 @@ describe('Access multiple databases', function()  {
                 expr: expr
              };
 
-        soar.execute(cmd, null, function(err, list) {
-            assert(!err, 'Failed to list.');
-            assert.equal( list.length, 3, 'Should have 3 records.');
-            assert(!list[0].name, 'Name fields should have been removed.');
-            done();
-        });
+        const  list = await soar.execute(cmd, null);
+        assert.equal( list.length, 3, 'Should have 3 records.');
+        assert(!list[0].name, 'Name fields should have been removed.');
     });
 });

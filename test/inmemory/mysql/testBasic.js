@@ -1,31 +1,32 @@
 /**
- * sql-soar mySQL test cases
+ * sql-soar MySQL in-memory test cases (mysql-memory-server)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryMysqlConfig } = require('../../helpers/mysqlMemorySetup');
 
-describe('Mysql Database Tests', function()  {
 
-    before(function() {
-        // Configure for mySQL
-        soar.config({"dbConfig": require('./config.json')})
+describe('MySQL In-Memory Database Tests (mysql-memory-server)', function()  {
+
+    before(async function() {
+        this.timeout(60000);
+        const  { config } = await createInMemoryMysqlConfig();
+        soar.config(config);
     });
 
 
     describe('Basic CRUD Operations', function() {
 
         it('Simple query', async function() {
-            // First test: just list all records to see what's in the database
             var  listExpr = soar.sql('Person');
             var  listCmd = {op: 'list', expr: listExpr};
 
             const allData = await soar.execute(listCmd);
-            assert(Array.isArray(allData), `Expected array, got: ${typeof allData}, value: ${JSON.stringify(allData)}`);
-            assert(allData.length > 0, `Database should have records, got: ${JSON.stringify(allData)}`);
+            assert(Array.isArray(allData), `Expected array, got: ${typeof allData}`);
+            assert(allData.length > 0, 'Database should have records');
 
-            // Now try the specific query with the first record's psnID
             var  firstRecordId = allData[0].psnID;
             var  expr = soar.sql('Person')
                             .column(['psnID', 'name'])
@@ -36,7 +37,7 @@ describe('Mysql Database Tests', function()  {
 
             const data = await soar.execute(cmd, query);
             assert(data !== null && data !== undefined, `Query returned: ${JSON.stringify(data)}`);
-            assert(data.psnID === firstRecordId, `Expected psnID=${firstRecordId}, got: ${JSON.stringify(data)}`);
+            assert(data.psnID === firstRecordId, `Expected psnID=${firstRecordId}`);
         });
 
         it('List records', async function() {
@@ -55,8 +56,7 @@ describe('Mysql Database Tests', function()  {
         it('Insert record', async function() {
             const  data = {
                     name: 'Test User',
-                    dob: '2010-08-25',
-                    weight: 70
+                    dob: '2010-08-25'
                  };
 
             const pk = await soar.insert('Person', data);
@@ -118,7 +118,6 @@ describe('Mysql Database Tests', function()  {
                  };
 
             await soar.createTable(schema);
-            // Clean up
             await soar.deleteTable('BoolTest');
         });
     });

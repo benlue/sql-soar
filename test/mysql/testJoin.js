@@ -14,7 +14,7 @@ before(function() {
 
 describe('Test table joins', function()  {
 
-    it('Simple join', function(done) {
+    it('Simple join', async function() {
     	var  expr = soar.sql('Person AS psn')
     					.join({table: 'PsnLoc AS pl', on: 'psn.psnID'})
 						.join({table: 'GeoLoc AS geo', on: 'pl.geID'})
@@ -23,16 +23,13 @@ describe('Test table joins', function()  {
     		 cmd = {query: expr},
     		 query = {psnID: 1};
 
-    	soar.execute(cmd, query, function(err, data) {
-    		//console.log(JSON.stringify(data, null, 4));
-    		assert.equal(data.name, 'John', 'wrong name');
-    		assert.equal(data.latitude, 25.133398, 'wrong latitude');
-
-    		done();
-    	})
+    	const data = await soar.execute(cmd, query);
+    	//console.log(JSON.stringify(data, null, 4));
+    	assert.equal(data.name, 'John', 'wrong name');
+    	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
-    
-    it('Simple join -- short form', function(done) {
+
+    it('Simple join -- short form', async function() {
     	var  expr = soar.sql('Person psn')
     					.join({table: 'PsnLoc pl', onWhat: 'psn.psnID = pl.psnID'})
     					.join({table: 'GeoLoc geo', onWhat: 'pl.geID=geo.geID'})
@@ -44,16 +41,13 @@ describe('Test table joins', function()  {
     		 },
     		 query = {psnID: 1};
 
-    	soar.execute(cmd, query, function(err, data) {
-    		//console.log(JSON.stringify(data, null, 4));
-    		assert.equal(data.name, 'John', 'wrong name');
-    		assert.equal(data.latitude, 25.133398, 'wrong latitude');
-
-    		done();
-    	})
+    	const data = await soar.execute(cmd, query);
+    	//console.log(JSON.stringify(data, null, 4));
+    	assert.equal(data.name, 'John', 'wrong name');
+    	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
 
-    it('join with auto fill', function(done) {
+    it('join with auto fill', async function() {
         var  expr = soar.sql('Person AS psn')
                         .join({table: 'PsnLoc As pl', onWhat: 'psn.psnID=pl.psnID'})
                         .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
@@ -64,10 +58,8 @@ describe('Test table joins', function()  {
                 expr: expr
              };
 
-        soar.execute(cmd, function(err, list) {
-            //console.log( JSON.stringify(list, null, 4) );
-            assert.equal(list.length, 2, '2 entries');
-            done();
-        });
+        const list = await soar.execute(cmd);
+        //console.log( JSON.stringify(list, null, 4) );
+        assert.equal(list.length, 2, '2 entries');
     });
 });

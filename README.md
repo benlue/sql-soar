@@ -26,7 +26,7 @@ Traditional ORMs often force developers into rigid patterns and hide the SQL lay
 ## Installation
 
 ```bash
-npm install sql-soar
+npm install @conwell/sql-soar
 ```
 
 ## Quick Start (5 Minutes Guide)
@@ -35,7 +35,7 @@ npm install sql-soar
 
 #### MySQL Configuration
 ```javascript
-const soar = require('sql-soar');
+const soar = require('@conwell/sql-soar');
 
 const options = {
     dbConfig: {
@@ -52,7 +52,7 @@ soar.config(options);
 
 #### PostgreSQL Configuration
 ```javascript
-const soar = require('sql-soar');
+const soar = require('@conwell/sql-soar');
 
 const options = {
     dbConfig: {
@@ -71,45 +71,38 @@ soar.config(options);
 
 ### 2. Basic Operations
 
+All SOAR operations return Promises and support async/await.
+
 #### Query a Single Record
 ```javascript
-soar.query('Person', {name: "David Lynch"}, function(err, person) {
-    if (err) {
-        console.log(err.stack);
-    } else {
-        console.log('Found person:', JSON.stringify(person));
-    }
-});
+const person = await soar.query('Person', {name: "David Lynch"});
+console.log('Found person:', JSON.stringify(person));
 ```
 
 #### List Multiple Records
 ```javascript
-soar.list('Person', {age: 25}, function(err, people) {
-    // Returns all persons with age = 25
-    console.log('People aged 25:', people);
-});
+const people = await soar.list('Person', {age: 25});
+// Returns all persons with age = 25
+console.log('People aged 25:', people);
 ```
 
 #### Insert Data
 ```javascript
-soar.insert('Person', {name: 'Sean', age: 18}, function(err, result) {
-    // result contains the primary key of the inserted record
-    console.log('Inserted person with ID:', result);
-});
+const pk = await soar.insert('Person', {name: 'Sean', age: 18});
+// pk contains the primary key of the inserted record
+console.log('Inserted person with ID:', pk);
 ```
 
 #### Update Data
 ```javascript
-soar.update('Person', {weight: 160}, {id: 28}, function(err) {
-    // Updates person with id=28, setting weight to 160
-});
+await soar.update('Person', {weight: 160}, {id: 28});
+// Updates person with id=28, setting weight to 160
 ```
 
 #### Delete Data
 ```javascript
-soar.del('Person', {age: 18}, function(err) {
-    // Deletes all persons with age = 18
-});
+await soar.del('Person', {age: 18});
+// Deletes all persons with age = 18
 ```
 
 ## Comprehensive Usage Guide
@@ -138,7 +131,7 @@ You can configure SOAR using a configuration file or programmatically:
 
 **Programmatic configuration:**
 ```javascript
-const soar = require('sql-soar');
+const soar = require('@conwell/sql-soar');
 
 soar.config({
     dbConfig: {
@@ -183,8 +176,8 @@ soar.config([
 ]);
 
 // Query from specific database
-soar.query('main_db.users', {active: true}, callback);
-soar.list('analytics_db.events', {date: '2024-01-01'}, callback);
+const user = await soar.query('main_db.users', {active: true});
+const events = await soar.list('analytics_db.events', {date: '2024-01-01'});
 ```
 
 ### Advanced Query Operations
@@ -199,9 +192,8 @@ const query = {
     city: {op: 'LIKE', value: '%New York%'}
 };
 
-soar.list('Person', query, function(err, results) {
-    // Returns people aged 25+, weighing <= 180lbs, in New York area
-});
+const results = await soar.list('Person', query);
+// Returns people aged 25+, weighing <= 180lbs, in New York area
 ```
 
 #### Using the IN Clause
@@ -213,9 +205,8 @@ const expr = soar.sql('Person')
 const cmd = {list: expr};
 const query = {id: [1, 5, 10, 15]};
 
-soar.execute(cmd, query, function(err, people) {
-    // Returns people with IDs 1, 5, 10, or 15
-});
+const people = await soar.execute(cmd, query);
+// Returns people with IDs 1, 5, 10, or 15
 ```
 
 #### Pagination
@@ -230,10 +221,9 @@ const cmd = {
     range: soar.range(1, 20) // Page 1, 20 items per page
 };
 
-soar.execute(cmd, {}, function(err, people, totalCount) {
-    console.log(`Found ${totalCount} total people`);
-    console.log(`Showing first 20 people:`, people);
-});
+const result = await soar.execute(cmd);
+console.log(`Found ${result.count} total people`);
+console.log(`Showing first 20 people:`, result.list);
 ```
 
 ### SQL Expressions - The Power of SOAR
@@ -254,9 +244,9 @@ const queryCmd = {query: expr};
 const updateCmd = {update: expr};
 
 // Execute with different parameters
-soar.execute(listCmd, {age: 21}, callback); // List all people 21+
-soar.execute(queryCmd, {age: 65}, callback); // Find first person 65+
-soar.execute(updateCmd, {status: 'senior'}, {age: 65}, callback); // Update seniors
+const people = await soar.execute(listCmd, {age: 21});       // List all people 21+
+const person = await soar.execute(queryCmd, {age: 65});       // Find first person 65+
+await soar.execute(updateCmd, {status: 'senior'}, {age: 65}); // Update seniors
 ```
 
 #### Table Joins
@@ -275,9 +265,8 @@ const expr = soar.sql('Person AS p')
     .filter({name: 'p.age', op: '>='})
     .extra('ORDER BY p.name');
 
-soar.execute({list: expr}, {age: 18}, function(err, results) {
-    // Returns people with their address and city information
-});
+const results = await soar.execute({list: expr}, {age: 18});
+// Returns people with their address and city information
 ```
 
 #### Complex Filtering
@@ -296,11 +285,11 @@ const expr = soar.sql('Person')
         ]
     });
 
-soar.execute({list: expr}, {
+const matches = await soar.execute({list: expr}, {
     age: 65,
     income: 30000,
     has_dependents: true
-}, callback);
+});
 // Finds seniors OR low-income people with dependents
 ```
 
@@ -325,10 +314,10 @@ For frequently used queries, store expressions as files:
 ```javascript
 // Reference by file path
 const cmd = {list: 'queries/active_users'};
-soar.execute(cmd, {
+const users = await soar.execute(cmd, {
     active: true,
     last_login: '2024-01-01'
-}, callback);
+});
 ```
 
 ### Schema Management
@@ -349,11 +338,7 @@ const schema = {
     }
 };
 
-soar.createTable(schema, function(err) {
-    if (!err) {
-        console.log('Table created successfully');
-    }
-});
+await soar.createTable(schema);
 ```
 
 #### Altering Tables
@@ -371,15 +356,14 @@ const alterSchema = {
     }
 };
 
-soar.alterTable(alterSchema, callback);
+await soar.alterTable(alterSchema);
 ```
 
 #### Describing Tables
 
 ```javascript
-soar.describeTable('users', function(err, schema) {
-    console.log('Table schema:', JSON.stringify(schema, null, 2));
-});
+const schema = await soar.describeTable('users');
+console.log('Table schema:', JSON.stringify(schema, null, 2));
 ```
 
 ### Transaction Management
@@ -387,50 +371,26 @@ soar.describeTable('users', function(err, schema) {
 SOAR provides full transaction support for data consistency:
 
 ```javascript
-const expr = soar.sql('accounts');
+const expr = soar.sql('Person')
+                 .column(['psnID', 'name'])
+                 .filter({name: 'psnID', op: '='});
 
-soar.getConnection(function(err, conn) {
-    if (err) return callback(err);
-    
-    conn.beginTransaction(function(err) {
-        if (err) {
-            conn.release();
-            return callback(err);
-        }
-        
-        // Debit account A
-        const debitCmd = {update: expr, conn: conn};
-        soar.execute(debitCmd, 
-            {balance: soar.sql().raw('balance - ?', [100])}, 
-            {id: accountA}, 
-            function(err) {
-                if (err) return rollback(conn, callback);
-                
-                // Credit account B
-                const creditCmd = {update: expr, conn: conn};
-                soar.execute(creditCmd,
-                    {balance: soar.sql().raw('balance + ?', [100])},
-                    {id: accountB},
-                    function(err) {
-                        if (err) return rollback(conn, callback);
-                        
-                        conn.commit(function(err) {
-                            if (err) return rollback(conn, callback);
-                            conn.release();
-                            callback(null);
-                        });
-                    }
-                );
-            }
-        );
-    });
-});
+const conn = await soar.getConnection();
+await conn.beginTransaction();
 
-function rollback(conn, callback) {
-    conn.rollback(function() {
-        conn.release();
-        callback(new Error('Transaction failed'));
-    });
+try {
+    // Insert a record within the transaction
+    const pk = await soar.execute({insert: expr, conn: conn}, {name: 'Scott Cooper'});
+
+    // Delete the record within the same transaction
+    await soar.execute({delete: expr, conn: conn}, pk);
+
+    await conn.commit();
+} catch (err) {
+    await conn.rollback();
+    throw err;
+} finally {
+    conn.release();
 }
 ```
 
@@ -439,26 +399,22 @@ function rollback(conn, callback) {
 When you need to execute raw SQL, SOAR provides the `runSql()` function:
 
 ```javascript
-// With parameters
-soar.runSql('SELECT * FROM users WHERE age > ? AND city = ?', 
-    [25, 'New York'], 
-    function(err, results) {
-        console.log('Query results:', results);
-    }
+// With parameters (MySQL)
+const results = await soar.runSql(
+    'SELECT * FROM users WHERE age > ? AND city = ?',
+    [25, 'New York']
 );
 
-// Without parameters
-soar.runSql('SELECT COUNT(*) as total FROM users', 
-    null, 
-    function(err, results) {
-        console.log('Total users:', results[0].total);
-    }
+// With parameters (PostgreSQL)
+const results = await soar.runSql(
+    'SELECT * FROM "users" WHERE "age" > $1 AND "city" = $2',
+    [25, 'New York']
 );
 
-// Within a transaction
-soar.getConnection(function(err, conn) {
-    soar.runSql(conn, 'UPDATE users SET last_seen = NOW()', null, callback);
-});
+// Target a specific database in a multi-DB setup
+const results = await soar.runSql('analytics_db',
+    'SELECT COUNT(*) as total FROM users', null
+);
 ```
 
 ### Error Handling and Debugging
@@ -473,27 +429,22 @@ const cmd = {
     debug: true // This will log the generated SQL
 };
 
-soar.execute(cmd, query, function(err, results) {
-    // Check console for SQL output
-});
+const results = await soar.execute(cmd, query);
 ```
 
 #### Error Handling Best Practices
 
 ```javascript
-soar.query('users', {id: userId}, function(err, user) {
-    if (err) {
-        console.error('Database error:', err.message);
-        console.error('Stack trace:', err.stack);
-        return res.status(500).json({error: 'Database error occurred'});
-    }
-    
+try {
+    const user = await soar.query('users', {id: userId});
     if (!user) {
         return res.status(404).json({error: 'User not found'});
     }
-    
     res.json(user);
-});
+} catch (err) {
+    console.error('Database error:', err.message);
+    res.status(500).json({error: 'Database error occurred'});
+}
 ```
 
 ### Performance Optimization
@@ -524,7 +475,7 @@ const expr = soar.sql('users')
     .extra('ORDER BY username LIMIT 100'); // Limit results
 
 // Use indexes effectively
-soar.execute({list: expr}, {active: true}, callback);
+const users = await soar.execute({list: expr}, {active: true});
 ```
 
 ## Supported Databases
@@ -551,30 +502,43 @@ SOAR automatically detects the database type based on:
 
 ## Testing
 
-SOAR includes comprehensive test suites for both MySQL and PostgreSQL:
+SOAR includes comprehensive test suites for both MySQL and PostgreSQL.
+
+### In-Memory Tests (No External Database Required)
+
+The easiest way to run tests — no Docker, Podman, or database server setup needed:
 
 ```bash
-# Run all tests
+# PostgreSQL in-memory tests (uses PGlite — real PostgreSQL in WebAssembly)
+npm run test:pg:mem
+
+# MySQL in-memory tests (uses mysql-memory-server — runs a real MySQL binary)
+npm run test:mysql:mem
+```
+
+**Note:** The first run of `test:mysql:mem` requires a MySQL binary on the system (installed or auto-downloaded by mysql-memory-server).
+
+### External Database Tests
+
+For testing against full database servers (via Podman/Docker):
+
+```bash
+# Run all external tests
 npm test
 
 # Run MySQL tests only
 npm run test:mysql
 
-# Run PostgreSQL tests only  
+# Run PostgreSQL tests only
 npm run test:postgresql
 
 # Run shared tests
 npm run test:shared
-
-# Quick test
-npm run test:simple
 ```
 
-### Setting up Test Environment
+#### Setting Up External Databases
 
-#### Using Podman/Docker
-
-**PostgreSQL Test Database:**
+**PostgreSQL:**
 ```bash
 npm run start:postgres  # Start PostgreSQL container
 npm run setup:postgres  # Initialize schema and sample data
@@ -582,7 +546,7 @@ npm run test:postgresql # Run PostgreSQL tests
 npm run stop:postgres   # Clean up
 ```
 
-**MySQL Test Database:**
+**MySQL:**
 ```bash
 npm run start:mysql     # Start MySQL container
 npm run setup:mysql     # Initialize schema and sample data
@@ -594,16 +558,18 @@ npm run stop:mysql      # Clean up
 
 ### Core Functions
 
+All async functions return Promises.
+
 | Function | Description |
 |----------|-------------|
 | `soar.config(options)` | Configure database connections |
-| `soar.query(table, conditions, callback)` | Query single record |
-| `soar.list(table, conditions, callback)` | Query multiple records |
-| `soar.insert(table, data, callback)` | Insert new record |
-| `soar.update(table, data, conditions, callback)` | Update existing records |
-| `soar.del(table, conditions, callback)` | Delete records |
-| `soar.execute(command, data, query, callback)` | Execute SQL expressions |
-| `soar.runSql(sql, parameters, callback)` | Execute raw SQL |
+| `soar.query(table, conditions)` | Query single record |
+| `soar.list(table, conditions)` | Query multiple records |
+| `soar.insert(table, data)` | Insert new record, returns primary key |
+| `soar.update(table, data, conditions)` | Update existing records |
+| `soar.del(table, conditions)` | Delete records |
+| `soar.execute(command, data, query)` | Execute SQL expressions |
+| `soar.runSql(sql, parameters)` | Execute raw SQL |
 
 ### SQL Expression Functions
 
@@ -619,16 +585,16 @@ npm run stop:mysql      # Clean up
 
 | Function | Description |
 |----------|-------------|
-| `soar.createTable(schema, callback)` | Create database table |
-| `soar.alterTable(schema, callback)` | Modify table structure |
-| `soar.deleteTable(tableName, callback)` | Drop table |
-| `soar.describeTable(tableName, callback)` | Get table schema |
+| `soar.createTable(schema)` | Create database table |
+| `soar.alterTable(schema)` | Modify table structure |
+| `soar.deleteTable(tableName)` | Drop table |
+| `soar.describeTable(tableName)` | Get table schema |
 
 ### Utility Functions
 
 | Function | Description |
 |----------|-------------|
-| `soar.getConnection(callback)` | Get database connection |
+| `soar.getConnection()` | Get database connection |
 | `soar.range(page, pageSize)` | Create pagination range |
 
 ## Contributing

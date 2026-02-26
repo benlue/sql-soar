@@ -1,18 +1,21 @@
 /**
- * sql-soar postgreSQL test cases
+ * sql-soar MySQL in-memory test cases (mysql-memory-server)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryMysqlConfig } = require('../../helpers/mysqlMemorySetup');
 
 
-before(function() {
-	soar.config({dbConfig: require('./config.json')})
+before(async function() {
+    this.timeout(60000);
+    const  { config } = await createInMemoryMysqlConfig();
+    soar.config(config);
 })
 
 
-describe('Test table joins', function()  {
+describe('Test table joins (MySQL in-memory)', function()  {
 
     it('Simple join', async function() {
     	var  expr = soar.sql('Person AS psn')
@@ -23,9 +26,8 @@ describe('Test table joins', function()  {
     		 cmd = {query: expr},
     		 query = {psnID: 1};
 
-    	const  data = await soar.execute(cmd, query);
-    	//console.log(JSON.stringify(data, null, 4));
-    	assert.equal(data.name, 'John Doe', 'wrong name');
+    	const data = await soar.execute(cmd, query);
+    	assert.equal(data.name, 'John', 'wrong name');
     	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
 
@@ -41,25 +43,23 @@ describe('Test table joins', function()  {
     		 },
     		 query = {psnID: 1};
 
-    	const  data = await soar.execute(cmd, query);
-    	//console.log(JSON.stringify(data, null, 4));
-    	assert.equal(data.name, 'John Doe', 'wrong name');
+    	const data = await soar.execute(cmd, query);
+    	assert.equal(data.name, 'John', 'wrong name');
     	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
 
     it('join with auto fill', async function() {
-        let  expr = soar.sql('Person AS psn')
+        var  expr = soar.sql('Person AS psn')
                         .join({table: 'PsnLoc As pl', onWhat: 'psn.psnID=pl.psnID'})
                         .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
                         .column(['psn.name', 'geo.latitude']);
 
-        const  cmd = {
-						op: 'list',
-						expr: expr
-					};
+        var  cmd = {
+                op: 'list',
+                expr: expr
+             };
 
-        const  list = await soar.execute(cmd);
-        //console.log( JSON.stringify(list, null, 4) );
-        assert.equal(list.length, 5, '5 entries');
+        const list = await soar.execute(cmd);
+        assert.equal(list.length, 2, '2 entries');
     });
 });

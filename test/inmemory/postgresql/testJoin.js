@@ -1,18 +1,21 @@
 /**
- * sql-soar postgreSQL test cases
+ * sql-soar PostgreSQL in-memory test cases (PGlite)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryPgConfig } = require('../../helpers/pgSetup');
 
 
-before(function() {
-	soar.config({dbConfig: require('./config.json')})
+before(async function() {
+    this.timeout(15000);
+    const  config = await createInMemoryPgConfig();
+    soar.config(config);
 })
 
 
-describe('Test table joins', function()  {
+describe('Test table joins (PGlite in-memory)', function()  {
 
     it('Simple join', async function() {
     	var  expr = soar.sql('Person AS psn')
@@ -24,7 +27,6 @@ describe('Test table joins', function()  {
     		 query = {psnID: 1};
 
     	const  data = await soar.execute(cmd, query);
-    	//console.log(JSON.stringify(data, null, 4));
     	assert.equal(data.name, 'John Doe', 'wrong name');
     	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
@@ -42,7 +44,6 @@ describe('Test table joins', function()  {
     		 query = {psnID: 1};
 
     	const  data = await soar.execute(cmd, query);
-    	//console.log(JSON.stringify(data, null, 4));
     	assert.equal(data.name, 'John Doe', 'wrong name');
     	assert.equal(data.latitude, 25.133398, 'wrong latitude');
     });
@@ -59,7 +60,6 @@ describe('Test table joins', function()  {
 					};
 
         const  list = await soar.execute(cmd);
-        //console.log( JSON.stringify(list, null, 4) );
         assert.equal(list.length, 5, '5 entries');
     });
 });

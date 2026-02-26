@@ -1,17 +1,20 @@
 /**
- * sql-soar mySQL test cases
+ * sql-soar MySQL in-memory test cases (mysql-memory-server)
  * @author Ben Lue
- * @copyright 2023 ~ 2025 Conwell Inc.
+ * @copyright 2025 ~ 2026 Conwell Inc.
  */
 const  assert = require('assert'),
-       soar = require('../../lib/soar.js');
+       soar = require('../../../lib/soar.js');
+const  { createInMemoryMysqlConfig } = require('../../helpers/mysqlMemorySetup');
 
-before(function() {
-    soar.config({"dbConfig": require('./config.json')})
+before(async function() {
+    this.timeout(60000);
+    const  { config } = await createInMemoryMysqlConfig();
+    soar.config(config);
 })
 
 
-describe('Test errors', function()  {
+describe('Test errors (MySQL in-memory)', function()  {
 
     it('Wrong command', async function() {
         var  cmd = {

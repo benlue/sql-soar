@@ -5,4 +5,7 @@
 .hg
 .lock_wscript
 .svn
+.claude
+.vscode
+cert/
 npm-debug.log
