@@ -1,3 +1,22 @@
+# SQL-SOAR Release Notes
+
+## What's New
+
+### v2.1.0
+- **Column Reference Filters** - Enhanced filter system now supports column-to-column comparisons using `@` prefix notation
+  - Use `@column_name` in filter values to reference other columns instead of parameters
+  - Works with both MySQL and PostgreSQL databases
+  - Example: `{age: '@birth_year'}` generates `WHERE age = birth_year` instead of parameterized queries
+  - Supports all operators: `=`, `>`, `<`, `>=`, `<=`, `LIKE`, etc.
+  - Compatible with table aliases and complex filter expressions
+
+### v2.0.0
+- **PostgreSQL Support** - Major overhaul of the codebase with full PostgreSQL database support
+- **Multi-Database Enhancement** - Improved support for mixing MySQL and PostgreSQL databases in the same application
+- **SQL Caching Removed** - No longer cache generated SQL statements as the original SQL reuse rule does not fully qualify all possible query conditions
+- **Enhanced Test Suite** - Comprehensive test coverage for both MySQL and PostgreSQL databases
+- **Schema Management** - Full schema management support for PostgreSQL including table creation, alteration, and deletion
+
 1.3.7
 =====
 + No longer cache the generated SQL statements. The original SQL resue rule does not fully qualify all possible query conditions.

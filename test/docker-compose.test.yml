@@ -1,0 +1,77 @@
+# Docker Compose for SQL-SOAR Testing
+# Provides both MySQL and PostgreSQL databases for testing
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: soar-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: soar
+      MYSQL_USER: your_acc
+      MYSQL_PASSWORD: your_passwd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sampleData/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sampleData/sampleData.sql:/docker-entrypoint-initdb.d/02-data.sql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  postgresql:
+    image: postgres:15
+    container_name: soar-postgresql
+    environment:
+      POSTGRES_DB: soar_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sampleData/schemaPostgreSQL.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./sampleData/sampleDataPostgreSQL.sql:/docker-entrypoint-initdb.d/02-data.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: pgAdmin for PostgreSQL administration
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: soar-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@soar.test
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgresql
+    profiles:
+      - admin
+
+  # Optional: phpMyAdmin for MySQL administration  
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: soar-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: your_acc
+      PMA_PASSWORD: your_passwd
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    profiles:
+      - admin
+
+volumes:
+  mysql_data:
+  postgres_data:

@@ -1,0 +1,8 @@
+{
+    "type": "mysql",
+    "host": "192.168.100.74",
+    "port": 3306,
+    "database": "soar",
+    "user": "gocharm",
+    "password": "gogocharm"
+}

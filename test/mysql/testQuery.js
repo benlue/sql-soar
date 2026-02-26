@@ -1,18 +1,18 @@
-/*!
-* sql-soar
-* authors: Ben Lue
-* license: MIT License
-* Copyright(c) 2015 ~ 2018 Gocharm Inc.
-*/
+/**
+ * sql-soar mySQL test cases
+ * @author Ben Lue
+ * @copyright 2023 ~ 2025 Conwell Inc.
+ */
 const  assert = require('assert'),
-       path = require('path'),
-       soar = require('../lib/soar.js');
+       soar = require('../../lib/soar.js');
+
+
+before(function() {
+    soar.config({"dbConfig": require('./config.json')})
+})
+
 
 describe('Test sql expression', function()  {
-
-    before(function() {
-        soar.config();
-    });
 
     it('Simple query', function(done) {
         var  expr = soar.sql('Person')

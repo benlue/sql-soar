@@ -1,644 +1,654 @@
-SQL-SOAR
-========
+# SQL-SOAR
 
-## What Is SOAR
-**SOAR** (Simple Object Adapter for Relational database) is a light-weight node.js module to harness SQL. It saves developers from the painstaking SQL hand-code tasks. Unlike ORM solutions, **soar** gives back to developers the capability to fully control how SQL statements are generated. **soar** has the following interesting features:
+**SOAR** (Simple Object Adapter for Relational database) is a lightweight, flexible Node.js module that bridges the gap between object-oriented programming and relational databases. Unlike traditional ORM solutions that abstract away SQL, SOAR gives developers full control over SQL generation while eliminating the tedious task of hand-coding SQL statements.
 
-+ Reusable SQL: you can easily formulate a SQL statement into an expression. You can later invoke and reuse the same SQL expression with various query conditions.
+## Why SOAR?
 
-+ Simple and elegant: you don't have to hand code the sql WHERE clause. Just specify the query values and **soar** will do the magic for you.
+Traditional ORMs often force developers into rigid patterns and hide the SQL layer, making it difficult to optimize queries or handle complex database operations. SOAR takes a different approach:
 
-+ Multiple database access: it's very easy to access multiple databases within an application using *soar*.
+- **SQL Expression System**: Compose reusable SQL queries as JSON objects that can be easily modified and maintained
+- **Full SQL Control**: Generate any SQL statement you need while avoiding repetitive hand-coding
+- **Multi-Database Support**: Seamlessly work with MySQL and PostgreSQL databases in the same application
+- **Schema Management**: Define and manipulate table schemas using intuitive JSON notation
+- **Performance Focused**: Lightweight design with efficient query execution and connection pooling
 
-+ Schema manipulation: you can define a table using JSON as the schema notation, and thus manipulate the table definition easily.
+## Key Features
 
-+ Full control: unlike ORM solutions, you have full control of how SQL is generated and applied.
-
-+ Extremely light weight and efficient.
-
-## What's New
-Here is [what's new](https://github.com/benlue/sql-soar/wiki/New-Features-of-V-1.2.3) of the new release (v1.3.4). You can track how this software evolves in the [release notes](https://github.com/benlue/sql-soar/blob/master/releaseNote.md). Below are some highlights:
-
-+ [v1.2.0] SQL expressions can be stored as files. That makes reuse even easier.
-
-+ [v1.1.5] When joining tables, both syntax as "table AS alias" or "table alias" would work.
-
-+ [v1.1.4] Support the IN clause in the query conditions. Check [this section](#inClause) to see how it can be done easily.
-
-+ [v1.1.3] If necessary, you can directly execute SQL statements using the [runSql()](#runsql) function. 
-
-<a name="5MGuide"></a>
-## 5 Minutes Guide
-First of all, you have to config **soar** so it knows how to talk with your database:
-
-    var  soar = require('sql-soar'),
-    var  options = {
-            dbConfig: {
-                "host"     : "127.0.0.1",
-                "database" : "soar",
-                "user"     : "your_db_acc_name",
-                "password" : "your_db_passwd",
-                "connectionLimit"   : 32
-            }
-         };
-    soar.config( options );
-
-where "connectionLimit" specifies how many connections will be created and buffered in the connection pool.
-
-That's all you need to do for setup. Now assuming you have a table called 'Person' and you want to find out all persons with age equal to 25 in that table. Below is how you can do with **soar**:
-
-    soar.list('Person', {age: 25}, function(err, list) {
-        // 'list' will contain persons whose age is 25.
-    });
-
-That's similar to issuing a SQL statement like:
-
-    SELECT * FROM Person WHERE age = 25;
-
-If you're sure your query result should have at most one entity, you may consider using "query" instead of "list":
-
-    soar.query('Person', {name: "David Lynch"}, function(err, data) {
-        if (err)
-            console.log( err.stack );
-        else
-            console.log('About David: %s', JSON.stringify(data));
-    });
-
-So the signatures of the querying calls can be summarized as below:
-
-    soar.query('table_name', query_values, cb);
-    soar.list('table_name', query_values, cb);
-
-where "query_values" is the column-value pair that will be translated into the WHERE clause. The query object can contain multiple properties. In that case, all properties wil be ANDed together. For example:
-
-    soar.list('Person, {age:25, city:'Oakland'}, callback);
-    
-is the same as the following SQL statement:
-
-    SELECT * FROM Person WHERE age = 25 AND city = 'Oakland';
-    
-If the comparator is not "=", you can specify the comparator in the query object:
-
-    var  query = {
-            age: {op: '>=', value: 25}
-         };
-         
-    soar.list('Person', query, callback);
-    
-Doing update is just as simple, see the example below:
-
-    soar.update('Person', {weight: 160}, {id: 28}, callback);
-    
-That's similar to issuing a SQL statement like:
-
-    UPDATE Person SET weight=160 WHERE id=28;
-    
-Inserting a new entry to a table can be done in a similar fashion:
-
-    soar.insert('Person', {name: 'Sean', age: 18}, callback);
-    
-so as "delete":
-
-    soar.del('Person', {age: 18}, callback);
-
-As you can see the CRUD (create, read, update and delete) operations can be done in a very simple and intuitive way. However, the features shown above are just handy functions. They all invoke the _execute()_ function to do their jobs. If you need to specify very complicated WHERE clauses, do table joins or do things in transactions and so forth, you'll need to do it with the _execute()_ function. The _execute()_ function is very powerful and probably too sophisticated for this 5 minutes guide. If you're interested, please refer to the [_execute()_](#soarExecute) API.
+- ✅ **Reusable SQL Expressions**: Build SQL queries once, use them multiple times with different parameters
+- ✅ **Simple CRUD Operations**: Intuitive functions for Create, Read, Update, and Delete operations
+- ✅ **Advanced Querying**: Support for complex WHERE clauses, JOINs, pagination, and the IN clause
+- ✅ **Multi-Database Access**: Easy configuration for multiple MySQL and PostgreSQL databases
+- ✅ **Transaction Support**: Full transaction control for data consistency
+- ✅ **Schema Management**: Create, alter, and manage database schemas programmatically
+- ✅ **Connection Pooling**: Efficient database connection management
+- ✅ **File-Based Storage**: Store frequently used SQL expressions as files for better organization
 
 ## Installation
 
-    npm install sql-soar
+```bash
+npm install sql-soar
+```
 
-## Contents
+## Quick Start (5 Minutes Guide)
 
-+ [DB settings](#dbSetup)
-  + [config.json file](#config)
-  + [configure programmatically](#configProg)
-  + [Multiple database configuration](#multidb)
-+ [SQL Expressions](#accessDB)
-+ [API](#dynamicAPI)
-  + [APIs related to SQL expressions](#sqlExprAPI)
-    + [soar.sql()](#soarSBI)
-    + [expr.join()](#sbiJoin)
-    + [expr.column()](#sbiColumn)
-    + [expr.filter()](#sbiFilter)
-    + [expr.extra()](#sbiExtra)
-  + [APIs related to data manipulation](#crudAPI)
-    + [execute()](#soarExecute)
-    + [query()](#dynamicQuery)
-    + [list()](#dynamicList)
-    + [insert()](#dynamicInsert)
-    + [update()](#dynamicUpdate)
-    + [del()](#dynamicDelete)
-    + [runSql()](#runsql)
-    + [How to do transactions](#transaction)
-+ [Schema management](#schema)
-  + [createTable()](#createTable)
-  + [alterTable()](#alterTable)
-  + [deleteTable()](#deleteTable)
-  + [describeTable()](#describeTable)
-+ [Debug messages](#debug)
+### 1. Database Configuration
 
-<a name="dbSetup"></a>
-## DB Settings
+#### MySQL Configuration
+```javascript
+const soar = require('sql-soar');
 
-There are two ways to setup the database configuration in SOAR: using a config file or doing it programmatically.
-
-<a name="config"></a>
-### The config.json File
-
-Right beneath the SOAR installation directory, there is a **config.json** file which would look like:
-
-    {
-    	"dbConfig": {
-    		"host"     : "127.0.0.1",
-    		"database" : "soar",
-    		"user"     : "myDB_acc_name",
-    		"password" : "xxxx",
-    		"supportBigNumbers" : true,
-    		"connectionLimit"   : 32
-    	},
-        "storedExpr": "file_path_to_the_stored_expressions"
+const options = {
+    dbConfig: {
+        host: "127.0.0.1",
+        database: "soar",
+        user: "your_username",
+        password: "your_password",
+        connectionLimit: 32
     }
+};
 
-where **host** is the database host and **database** is the database name. **user** and **password** are the database user name and password respectively. SOAR ueses the _mysql_ node module as its mySQL driver and the connection pool feature is turned on by default.
+soar.config(options);
+```
 
-There is another property "storedExpr" specified in the option. The **storedExpr** property denotes the file directory where stored SQL expressions are located. This property is optional. If you don't use any stored SQL expression at all, you can leave out this property.
+#### PostgreSQL Configuration
+```javascript
+const soar = require('sql-soar');
 
-<a name="configProg"></a>
-### Configure Programmatically
+const options = {
+    dbConfig: {
+        type: "postgresql",
+        host: "127.0.0.1",
+        port: 5432,
+        database: "soar",
+        user: "your_username",
+        password: "your_password",
+        connectionLimit: 32
+    }
+};
 
-You can configure the database connection settings right inside your node.js application. Here is how:
+soar.config(options);
+```
 
-    var  soar = require('sql-soar');
-    var  options = {
-                dbConfig: {
-                    "host"     : "127.0.0.1",
-                    "database" : "soar",
-                    "user"     : "myDB_acc_name",
-                    "password" : "xxxx",
-                    "supportBigNumbers" : true,
-                    "connectionLimit"   : 32
-                },
-                "storedExpr": "file_path_to_the_stored_expressions"
-         };
+### 2. Basic Operations
 
-    soar.config( options );
+#### Query a Single Record
+```javascript
+soar.query('Person', {name: "David Lynch"}, function(err, person) {
+    if (err) {
+        console.log(err.stack);
+    } else {
+        console.log('Found person:', JSON.stringify(person));
+    }
+});
+```
 
-The option settings are the same as the config.json file.
+#### List Multiple Records
+```javascript
+soar.list('Person', {age: 25}, function(err, people) {
+    // Returns all persons with age = 25
+    console.log('People aged 25:', people);
+});
+```
 
-<a name="multidb"></a>
-### Multiple Databases Configuration
+#### Insert Data
+```javascript
+soar.insert('Person', {name: 'Sean', age: 18}, function(err, result) {
+    // result contains the primary key of the inserted record
+    console.log('Inserted person with ID:', result);
+});
+```
 
-Using SOAR to access multiple databases is extremely easy. In this section, we'll show you how to configure SOAR to connect to multiple databases.
+#### Update Data
+```javascript
+soar.update('Person', {weight: 160}, {id: 28}, function(err) {
+    // Updates person with id=28, setting weight to 160
+});
+```
 
-In your **config.json** file, use an array of options instead of a single configuration option with each option specifying the settings of each database. Below is an example:
+#### Delete Data
+```javascript
+soar.del('Person', {age: 18}, function(err) {
+    // Deletes all persons with age = 18
+});
+```
 
-	[
+## Comprehensive Usage Guide
+
+### Database Configuration
+
+#### Single Database Setup
+
+You can configure SOAR using a configuration file or programmatically:
+
+**Using config.json file:**
+```json
+{
+    "dbConfig": {
+        "type": "mysql",
+        "host": "127.0.0.1",
+        "database": "soar",
+        "user": "username",
+        "password": "password",
+        "supportBigNumbers": true,
+        "connectionLimit": 32
+    },
+    "storedExpr": "/path/to/stored/expressions"
+}
+```
+
+**Programmatic configuration:**
+```javascript
+const soar = require('sql-soar');
+
+soar.config({
+    dbConfig: {
+        type: "postgresql",
+        host: "localhost",
+        port: 5432,
+        database: "myapp",
+        user: "dbuser",
+        password: "dbpass",
+        connectionLimit: 32
+    }
+});
+```
+
+#### Multi-Database Configuration
+
+SOAR excels at managing multiple databases, even mixing MySQL and PostgreSQL:
+
+```javascript
+soar.config([
     {
-    	"dbConfig": {
-    		"host"     : "127.0.0.1",
-    		"database" : "db_1",
-    		"user"     : "db1_acc_name",
-    		"password" : "xxxx",
-    		"supportBigNumbers" : true,
-    		"connectionLimit"   : 32
-    	}
+        dbConfig: {
+            alias: "main_db",
+            type: "mysql",
+            host: "mysql-server",
+            database: "main_database",
+            user: "mysql_user",
+            password: "mysql_pass"
+        }
     },
     {
-    	"dbConfig": {
-    		"host"     : "127.0.0.1",
-    		"database" : "db_2",
-    		"user"     : "db2_acc_name",
-    		"password" : "xxxx",
-    		"supportBigNumbers" : true,
-    		"connectionLimit"   : 32
-    	}
+        dbConfig: {
+            alias: "analytics_db",
+            type: "postgresql",
+            host: "postgres-server",
+            port: 5432,
+            database: "analytics",
+            user: "postgres_user",
+            password: "postgres_pass"
+        }
     }
-    ]
+]);
 
-If you need to connect to 10 databases in your application, then the configuration array should have 10 elements. Configuring multiple databases programmatically is done similarily.
+// Query from specific database
+soar.query('main_db.users', {active: true}, callback);
+soar.list('analytics_db.events', {date: '2024-01-01'}, callback);
+```
 
-How to access each database in a multi-databases scenario will be explained in each database access method (query, list, create, update and delete) below.
+### Advanced Query Operations
 
-<a name="accessDB"></a>
-## SQL Expressions
+#### Complex Query Conditions
 
-As explained in the ["5 Minutes Guide"](#5MGuide) above, if you want to do sophisticated SQL queries, you'll need a more powerful tool. That tool is *SQL expression*.
+```javascript
+// Using operators
+const query = {
+    age: {op: '>=', value: 25},
+    weight: {op: '<=', value: 180},
+    city: {op: 'LIKE', value: '%New York%'}
+};
 
-With SQL expressions, you can compose and reuse SQL queries in a clean and managable way. In essence, SQL expressions are nothing more than SQL statements encoded as a JSON object. An example should help to explain what is a SQL expression:
+soar.list('Person', query, function(err, results) {
+    // Returns people aged 25+, weighing <= 180lbs, in New York area
+});
+```
 
-    var  expr = soar.sql('Person')
-                    .column(['id', 'addr AS address', 'age'])
-                    .filter( {name: 'age', op: '>='} )
-                    .extra( 'ORDER BY id' );
+#### Using the IN Clause
+
+```javascript
+const expr = soar.sql('Person')
+    .filter({name: 'id', op: 'IN'});
+
+const cmd = {list: expr};
+const query = {id: [1, 5, 10, 15]};
+
+soar.execute(cmd, query, function(err, people) {
+    // Returns people with IDs 1, 5, 10, or 15
+});
+```
+
+#### Pagination
+
+```javascript
+const expr = soar.sql('Person')
+    .column(['id', 'name', 'email'])
+    .extra('ORDER BY name');
+
+const cmd = {
+    list: expr,
+    range: soar.range(1, 20) // Page 1, 20 items per page
+};
+
+soar.execute(cmd, {}, function(err, people, totalCount) {
+    console.log(`Found ${totalCount} total people`);
+    console.log(`Showing first 20 people:`, people);
+});
+```
+
+### SQL Expressions - The Power of SOAR
+
+SQL expressions are SOAR's most powerful feature. They allow you to build complex, reusable SQL queries:
+
+#### Basic SQL Expression
+
+```javascript
+const expr = soar.sql('Person')
+    .column(['id', 'name', 'email'])
+    .filter({name: 'age', op: '>='})
+    .extra('ORDER BY name');
+
+// Use the expression for different operations
+const listCmd = {list: expr};
+const queryCmd = {query: expr};
+const updateCmd = {update: expr};
+
+// Execute with different parameters
+soar.execute(listCmd, {age: 21}, callback); // List all people 21+
+soar.execute(queryCmd, {age: 65}, callback); // Find first person 65+
+soar.execute(updateCmd, {status: 'senior'}, {age: 65}, callback); // Update seniors
+```
+
+#### Table Joins
+
+```javascript
+const expr = soar.sql('Person AS p')
+    .join({
+        table: 'Address AS a',
+        on: 'p.address_id = a.id'
+    })
+    .join({
+        table: 'City AS c',
+        on: 'a.city_id = c.id'
+    })
+    .column(['p.name', 'a.street', 'c.name AS city'])
+    .filter({name: 'p.age', op: '>='})
+    .extra('ORDER BY p.name');
+
+soar.execute({list: expr}, {age: 18}, function(err, results) {
+    // Returns people with their address and city information
+});
+```
+
+#### Complex Filtering
+
+```javascript
+const expr = soar.sql('Person')
+    .filter({
+        'or': [
+            {name: 'age', op: '>=', value: 65},
+            {
+                'and': [
+                    {name: 'income', op: '<='},
+                    {name: 'has_dependents', op: '='}
+                ]
+            }
+        ]
+    });
+
+soar.execute({list: expr}, {
+    age: 65,
+    income: 30000,
+    has_dependents: true
+}, callback);
+// Finds seniors OR low-income people with dependents
+```
+
+#### Stored SQL Expressions
+
+For frequently used queries, store expressions as files:
+
+**queries/active_users.json**
+```json
+{
+    "table": "users",
+    "columns": ["id", "username", "email", "last_login"],
+    "filter": [
+        {"name": "active", "op": "="},
+        {"name": "last_login", "op": ">="}
+    ],
+    "extra": "ORDER BY last_login DESC"
+}
+```
+
+**Using stored expressions:**
+```javascript
+// Reference by file path
+const cmd = {list: 'queries/active_users'};
+soar.execute(cmd, {
+    active: true,
+    last_login: '2024-01-01'
+}, callback);
+```
+
+### Schema Management
+
+SOAR provides comprehensive schema management capabilities:
+
+#### Creating Tables
+
+```javascript
+const schema = {
+    title: 'users',
+    columns: {
+        id: {type: 'serial', primaryKey: true},
+        username: {type: 'varchar', size: 50, notNull: true, unique: true},
+        email: {type: 'varchar', size: 255, notNull: true},
+        age: {type: 'int'},
+        created_at: {type: 'timestamp', default: 'CURRENT_TIMESTAMP'}
+    }
+};
+
+soar.createTable(schema, function(err) {
+    if (!err) {
+        console.log('Table created successfully');
+    }
+});
+```
+
+#### Altering Tables
+
+```javascript
+const alterSchema = {
+    title: 'users',
+    add: {
+        last_login: {type: 'timestamp'},
+        profile_image: {type: 'varchar', size: 255}
+    },
+    drop: ['old_column'],
+    modify: {
+        email: {type: 'varchar', size: 320} // Increase email field size
+    }
+};
+
+soar.alterTable(alterSchema, callback);
+```
+
+#### Describing Tables
+
+```javascript
+soar.describeTable('users', function(err, schema) {
+    console.log('Table schema:', JSON.stringify(schema, null, 2));
+});
+```
+
+### Transaction Management
+
+SOAR provides full transaction support for data consistency:
+
+```javascript
+const expr = soar.sql('accounts');
+
+soar.getConnection(function(err, conn) {
+    if (err) return callback(err);
     
-You can use the above SQL expression to do a database query:
-
-    var  cmd = {list: expr},
-         query = {age: 18};
-    
-    soar.execute(cmd, query, function(err, list) {
-    	// 'list' is the query result
-    });
-
-That's equivalent to:
-
-    SELECT id, addr AS address, age
-    FROM Person
-    WHERE age >= 18;
-    
-**soar** will match the input query with the filter section of a SQL expression.
-
-"Well, that looks nice but what's the befenit?" you may ask. The best part of SQL expression is that you can simply specify your query conditions as a JSON object and **soar** will match your query objerct with the **filter** section of a SQL expression. In other words, you're saved from the pains-taking task to re-compose a SQL statement simply becase you've changed your query condition (even very slightly) .
-
-Besides, you can use the same SQL expressions  in all CRUD operations. **soar** is smart enough to retrieve the related information from a SQL expression and compose the intended SQL statement. For example, you can use the same SQL expression for query to do update:
-
-    var  cmd = {update: expr};
-         
-    soar.execute(cmd, {canDrive: true}, {age: 18}, callback);
-
-Constructing a SQL expression is simple. It starts from the _soar.sql(tableName)_ function. The _soar.sql(tableName)_ function takes a table name as its input and returns a **SQL Expression** object. With that object, you can add selected table columns, set query conditions and specify addtional options (such as GROUP BY or ORDER BY). Every SQL expression function returns the expression object itself, so you can chain funcion calls to succintly compose a SQL expression.
-
-What's better, if you keep using some SQL expressions in your applications, you may want to save them into files so you can reuse them. Stored in files, such SQL expressions are also very easy to maintain.
-
-<a name="dynamicAPI"></a>
-## API
-
-<a name="sqlExprAPI"></a>
-### APIs related to SQL expressions
-
-<a name="soarSBI"></a>
-#### soar.sql(tableName)
-
-This function returns a SQL expression. _tableName_ is the name of a table. If you'll access multiple databases in an application, _tableName_ has to be in the form of _dbName.tableName_ so that **soar** knows which database to talk to.
-
-Example:
-
-    var  expr = soar.sql('myTable');
-
-<a name="sbiJoin"></a>
-#### expr.join(joinExpr)
-
-With the SQL expression obtained from the _soar.sql()_ funciton call, you  can use its _join()_ function to specify table joins.
-
-Example:
-
-    var  expr = soar.sql('myTable AS myT')
-                    .join({
-                        table: 'Location AS loc', 
-                        on: 'myT.locID=loc.locID'
-                     });
-    
-If you want to make multiple joins, just call _join()_ as many times as you need. The parameter to the _join()_ function call is a plain JSON object with the following properties:
-
-+ table: name of the joined table.
-+ type: if you want to make a left join, you can set this property to 'LEFT'.
-+ on: the join clause. If the _use_ property described below is specified, this property will be ignored.
-+ use: the common column name to join two tables.
-
-<a name="sbiColumn"></a>
-#### expr.column(column)
-
-This function can be used to add table columns to a SQL expression. To add a single column, the parameter is the name of the column. If you want to add multiple columns, the parameter should be an array of column names.
-
-Example:
-
-    var  expr = soar.sql('Person')
-                    .column(['name', 'age', 'weight']);
-
-<a name="sbiFilter"></a>
-#### expr.filter(filter)
-
-This function is used to set query conditions (filter) of a SQL expression. **soar** accepts various filter formats so you can easily specify the query conditions needed.
-
-The easiest way is to simply specify a column name as the query condition:
-
-    var  expr = soar.sql('Person')
-                    .filter('age');
-
-That is equavilent to the following SQL statement:
-
-    SELECT * FROM Person WHERE age = ?;
-
-If the comparator is not equal (=) but other opertors, you can specify the filter as an object:
-
-    var  expr = soar.sql('Person')
-                    .filter({age: '>'});
-
-That is equavilent to the following SQL statement:
-
-    SELECT * FROM Person WHERE age > ?;
-
-The object filter just introduced is actually an short format. The "standard" object filter could have the following properties:
-
-+ name: name of the filter. It's also used as the key to retrieve the query value from a query object. This property is required.
-+ field: the real column name in a table. If this property is missing, the _name_ property will be used instead.
-+ op: what comparator to be used. It can be '>', '=' or 'IS NULL', etc.
-+ noArg: when a query operation does not require argument (e.g. IS NULL), this property should be set to true.
-
-What about compound query conditions? You can do so with a single property filter object and the property value is an array (of object filters) such as the following:
-
-    var  expr = soar.sql('Person')
-                    .filter({
-                        'or': [
-                            {age: '>'},
-                            'height'
-                        ]
-                    });
-
-That is equavilent to the following SQL statement:
-
-    SELECT * FROM Person WHERE age > ? OR height = ?;
-
-If the compound operator is 'and', you can even omit it. For example:
-
-    var  expr = soar.sql('Person')
-                    .filter({
-                        'and': [
-                            {weight: '>'},
-                            {height: '>'}
-                        ]
-                    });
-
-is the same as:
-
-    var  expr = soar.sql('Person')
-                    .filter([
-                        {weight: '>'},
-                        {height: '>'}
-                    ]);
-
-<a name="sbiExtra"></a>
-#### expr.extra(extra)
-
-This function can add extra options to a SQL statement. _extra_ is a string with possible values like 'GROUP BY col_name' or 'ORDER BY col_name'.
-
-Example:
-
-    var  expr = soar.sql('myTable')
-                    .extra('ORDER BY region');
-
-<a name="crudAPI"></a>
-### APIs related to data manipulation
-
-<a name="soarExecute"></a>
-#### soar.execute(cmd, data, query, cb)
-
-This function can be used to execute SQL queries (query, list, insert, update and delete). The **_data_** parameter is a JSON object which contains data to be inserted or updated to a table entry. The **_query_** parameter is a JSON object which specifies the actual query values. It should be noted the **query** parameter here should just be plain column-value pairs. The [query object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) format is not applicable here.
-
-The **_cmd_** parameter is a command to **soar**. It usually has an 'operator' property. The operator property can be one of the following: 'query', 'list', 'insert', 'update' and 'delete'. The value of the operator property is a SQL expression that is needed to generate the SQL statement. If you want to invoke a stored SQL expression, this property can be the path name of the stored SQL expression.
-
-Besides, the **_cmd_** parameter could have the following properties:
-
-+ range: specifies the window of a result set. The _range_ object can be created using the _soar.range()_ function.
-
-+ conn: a database connection object. You usually don't have to specify this property unless you want to do transactions.
-
-+ debug: if set to true, **soar** will print out the SQL (prepare) statement along with the parameters applied.
-
-If the **_data_** parameter is not needed, the function call can be simplified to _execute(cmd, query, cb)_.
-
-_cb_ is the callback function which receives an error and sometimes a result object (when it's a query, list or insert operation).
-
-Example:
-
-    var  expr = soar.sql('Person'),
-         cmd = {update: expr},
-         data = {
-            name: 'John',
-            age: 32
-         };
-         
-    soar.execute(cmd, data, {id: 24}, function(err)  {
-        // set person #24 to name='John' and age=32
-    });
-     
-Example of doing pagination:
-
-    var  expr = soar.sql('Person'),
-         cmd = {
-            list: expr,
-            range: soar.range(1, 10)    // return the first page with page size of 10
-         };
-         
-    soar.execute(cmd, function(err, rows, count)  {
-        console.log('total count is: ' + count);
-        console.log('but we will only return the first page of 10 items');
-    });
-    
-<a name="dynamicQuery"></a>
-#### soar.query(tbName, query, cb)
-
-If you expect a table query should return only one entity (even though there maybe multiple matches to your query), you can use this function.
-
-* tbName: name of the table to be queried. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to query.
-* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
-* cb: call back function which will be fed with two parameters: _err_ and _data_. _err_ is the error object (if any) and _data_ is the query result as a plain Javascript object.
-
-Example:
-
-    soar.query('Person', {psnID: 1}, function(err, data) {
-        // 'data' is the query result
-    });
-    
-    var  query = {
-            age: {op: '>=', value: 25},
-            weight: {op: '>=', value: 160}
-         };
-    soar.query('Person', query, function(err, data)  {
-        // if data is not null,
-        // it's the person who is weighted more than 160 and older than 25 
-    });
-
-<a name="dynamicList"></a>    
-#### soar.list(tbName, query, cb)
-
-Use this function to get multiple entries from a table.
-
-* tbName: name of the table to be queried. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to query.
-* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
-* cb: call back function which will be fed with two parameters: _err_ and list. _err_ is the error object (if any) and _list_ is the query result as a Javascript array. If nothing matches, _list_ will be an empty array.
-
-Example:
-
-    soar.list('Person', {age: 25}, function(err, list) {
-        // 'list' contains person who is at the age of 25
-    });
-    
-    var  query = {
-            age: {op: '>=', value: 25},
-            weight: {op: '>=', value: 160}
-         };
-    soar.list('Person', query, function(err, list)  {
-        // 'list' will contain people
-        // who is weighted more than 160 and older than 25 
-    });
-
-<a name="inClause"></a>   
-##### List with the IN clause
-It's possible to use IN in the where clause, but it has to be done with the more sophisticaed _execute()_ function. Below is how it can be done:
-
-    var  expr = soar.sql('Person')
-                    .filter({name: 'psnID', op: 'IN'});
-
-    var  cmd = {op: 'list', expr: expr},
-         query = {psnID: [7, 29, 33]};                    
-    soar.execute(cmd, query, function(err, list)  {
-        // list will contain people whose id is 7, 29 or 33
-    });
-
-<a name="dynamicInsert"></a>    
-#### soar.insert(tbName, data, cb)
-
-Inserting a new entry to a table.
-
-* tbName: name of the table to be inserted. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to do insert.
-* data: the _data_ to be inserted. If _data_ contains any properties which do not match the target table column, those properties will be ignored.
-* cb: call back function which will be fed with two parameters: _err_ and _pk_. _err_ is the error object (if any) and _pk_ is the primary key of the newly inserted entry.
-
-Example:
-
-    soar.insert('Person', {name: 'Scott Cooper'}, function(err, pk) {
-        // 'pk' contains the primary key value of the inserted entry
-        // for example, it could be something like:
-        // {psnID: _the_psnID_of_the_newly_inserted_entity}
-        // where 'psnID' is the primary key of the Person table
-    });
-
-<a name="dynamicUpdate"></a>    
-#### soar.update(tbName, data, query, cb)
-
-Updating data entries in a table.
-
-* tbName: name of the table to be updated. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to update.
-* data: the _data_ to be updated. If _data_ contains any properties which do not match the target table column, those properties will be ignored.
-* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
-* cb: call back function which will be fed with an _err_ parameter (if any).
-
-Example:
-
-    soar.update('Person', {name: 'John Mayer'}, {psnID: 1}, cb);
-
-<a name="dynamicDelete"></a>    
-#### soar.del(tbName, query, cb)
-
-Deleting entries of a table.
-
-* tbName: name of the table whose entries will be deleted. If you're accessing multiple databases, you can use _databaseName.tableName_ to specify which database you intend to do deletion.
-* query: the query condition. Refer to [Query Object](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md) for how to effectively use it.
-* cb: call back function which will be fed with an _err_ parameter (if any).
-
-Example:
-
-    soar.del('Person', {psnID: 1}, cb);
-    
-
-<a name="runsql"></a>    
-#### soar.runSql(conn, sql, arguments, cb)
-This function can be used to run SQL statements directly if you still need to. Even though SOAR provides quite a few handy functions to access databases, sometimes you may still need to manually build a SQL statement. In such cases, you can use this function.
-
-* conn: the database connection. This parameter is optional. You'll pass in a connecton parameter mostly because the SQL statement should be executed within a transactions.
-* sql: the SQL statement to be executed.
-* arguments: data to be filled into the SQL statement (if the given SQL statement is a prepared statement).
-* cb: the call back function with two parameters: _err_ and _result_.
-
-Example:
-
-    soar.runSql('SELECT * FROM Person WHERE psnID=?',
-                [101],
-                function(err, result)  {});
+    conn.beginTransaction(function(err) {
+        if (err) {
+            conn.release();
+            return callback(err);
+        }
+        
+        // Debit account A
+        const debitCmd = {update: expr, conn: conn};
+        soar.execute(debitCmd, 
+            {balance: soar.sql().raw('balance - ?', [100])}, 
+            {id: accountA}, 
+            function(err) {
+                if (err) return rollback(conn, callback);
                 
-    /* execute a SQL statement without parameters */
-    soar.runSQL('SELECT * FROM Person', null, function(err, result) {
-        // do something in the callback
-    }); 
-
-<a name="transaction"></a>    
-#### How to do transactions
-
-Doing transaction is faily simple. All you need to do is to obtain a database connection and set it to the soar command. However, only the soar.execute() funciton supprots transactions. You can not apply transactions to soar.query(), soar.list(), soar.update(), soar.insert() and soar.del().
-
-Example:
-
-    var  expr = soar.sql('Person');
-    
-    soar.getConnection( function(err, conn) {
-        // remember to specify database connection in 'cmd'
-        var  cmd = {
-                insert: expr,
-                conn: conn
-             },
-             data = {name: 'Scott Cooper'};
-            
-        conn.beginTransaction(function(err) {
-            soar.execute(option, data, null, function(err, data) {
-                if (err)
-                    conn.rollback(function() {
-                        // remember to release the connection
-                        conn.release();
-                    });
-                else
-                    conn.commit(function(err) {
-                        if (err)
-                            conn.rollback(function() {
-                                // remember to release the connection
-                                conn.release();
-                            });
-                        else
+                // Credit account B
+                const creditCmd = {update: expr, conn: conn};
+                soar.execute(creditCmd,
+                    {balance: soar.sql().raw('balance + ?', [100])},
+                    {id: accountB},
+                    function(err) {
+                        if (err) return rollback(conn, callback);
+                        
+                        conn.commit(function(err) {
+                            if (err) return rollback(conn, callback);
                             conn.release();
-                    });		
-            });
-        };
+                            callback(null);
+                        });
+                    }
+                );
+            }
+        );
     });
+});
 
-<a name="schema"></a>
-## Schema Management
+function rollback(conn, callback) {
+    conn.rollback(function() {
+        conn.release();
+        callback(new Error('Transaction failed'));
+    });
+}
+```
 
-Besides accessing data, you can also use **soar** to manage table schema.
+### Direct SQL Execution
 
-<a name="createTable"></a>
-### createTable(schema, cb)
+When you need to execute raw SQL, SOAR provides the `runSql()` function:
 
-This function will create a database table. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when table creation is successful or erred.
+```javascript
+// With parameters
+soar.runSql('SELECT * FROM users WHERE age > ? AND city = ?', 
+    [25, 'New York'], 
+    function(err, results) {
+        console.log('Query results:', results);
+    }
+);
 
-If you want to call _createTable()_ with a specific database conection object, you can do _createTable(conn, schema, cb)_.
+// Without parameters
+soar.runSql('SELECT COUNT(*) as total FROM users', 
+    null, 
+    function(err, results) {
+        console.log('Total users:', results[0].total);
+    }
+);
 
-<a name="alterTable"></a>
-### alterTable(schema, cb)
+// Within a transaction
+soar.getConnection(function(err, conn) {
+    soar.runSql(conn, 'UPDATE users SET last_seen = NOW()', null, callback);
+});
+```
 
-This function can be used to alter table schema. _schema_ is a **schema notation** object which defines a table schema. Please refer to [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md) to know about what it is and how to create a schema notation. _cb_ is a callback function when altering table is successfully done or erred.
+### Error Handling and Debugging
 
-If you want to call _alterTable()_ with a specific database conection object, you can do _alterTable(conn, schema, cb)_.
+#### Debugging SQL Generation
 
-<a name="deleteTable"></a>
-### deleteTable(tableName, cb)
+Enable debug mode to see generated SQL statements:
 
-This function can be used to delete (drop) a table. _tableName_ is the name of the table to be dropped. _cb_ is a callback function when deleting table is successfully done or erred.
+```javascript
+const cmd = {
+    list: expr,
+    debug: true // This will log the generated SQL
+};
 
-If you want to call _deleteTable()_ with a specific database conection object, you can do _deleteTable(conn, schema, cb)_.
+soar.execute(cmd, query, function(err, results) {
+    // Check console for SQL output
+});
+```
 
-<a name="describeTable"></a>
-### describeTable(tableName, cb)
+#### Error Handling Best Practices
 
-This function can be used to derive schema from an existing table. _tableName_ is the name of the table to be explored. _cb(err, schema)_ is the callback function to return the table schema. The returned schema object is constructed as suggested by [schema notation](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md).
+```javascript
+soar.query('users', {id: userId}, function(err, user) {
+    if (err) {
+        console.error('Database error:', err.message);
+        console.error('Stack trace:', err.stack);
+        return res.status(500).json({error: 'Database error occurred'});
+    }
+    
+    if (!user) {
+        return res.status(404).json({error: 'User not found'});
+    }
+    
+    res.json(user);
+});
+```
 
-If you want to call _describeTable()_ with a specific database conection object, you can do _describeTable(conn, schema, cb)_.
+### Performance Optimization
 
-<a name="debug"></a>
-## Debug Messages
+#### Connection Pooling
 
-If you want to know what SQL statements are actually generated by **soar**, you can set the 'debug' property of a **soar** command to be true (this feature only works for the _execute()_ function). For example:
+```javascript
+soar.config({
+    dbConfig: {
+        host: "localhost",
+        database: "myapp",
+        user: "dbuser",
+        password: "dbpass",
+        connectionLimit: 50, // Adjust based on your needs
+        acquireTimeout: 60000,
+        timeout: 60000
+    }
+});
+```
 
-    var  cmd = {
-            list: expr,
-            debug: true    // set to 'true' will print out SQL
-         };
-         
-    soar.execute(cmd, query, cb);
+#### Query Optimization
 
-## Regarding Tests
+```javascript
+// Use specific columns instead of SELECT *
+const expr = soar.sql('users')
+    .column(['id', 'username', 'email']) // Only select needed columns
+    .filter('active')
+    .extra('ORDER BY username LIMIT 100'); // Limit results
 
-The **soar** package comes with some test files. To run those tests, sample data have to be built first. Inside the "test/sampleData" directory there are two files: schema.sql and sampleData.sql. Those two files can be used to build the sample data. In addition, remember to change the user name and password in your config.json file and the related database settings in the test programs.
+// Use indexes effectively
+soar.execute({list: expr}, {active: true}, callback);
+```
 
-## Supported Database
+## Supported Databases
 
-In the current release, **soar** only supports mySQL. If you want to use **soar** for other databases such as Postgre, MS SQL server or Oracle DB, etc, you'll have to write your own SQL generator. Right now SQL generation is implemented by ./lib/sqlGenMySql.js. 
+### MySQL (Default)
+- Full support for all MySQL features
+- Default database type when no `type` is specified
+- Supports MySQL-specific features like `AUTO_INCREMENT`, `ENGINE=InnoDB`
+
+### PostgreSQL
+- Full support for PostgreSQL features
+- Specify `"type": "postgresql"` in configuration
+- Supports PostgreSQL-specific features:
+  - `SERIAL` data types for auto-increment
+  - Boolean data types
+  - PostgreSQL parameter syntax (`$1`, `$2`, etc.)
+  - Double-quoted identifiers
+
+### Database Type Detection
+SOAR automatically detects the database type based on:
+1. **Explicit type**: `"type": "postgresql"` or `"type": "mysql"`
+2. **Port detection**: Port 5432 defaults to PostgreSQL
+3. **Default fallback**: MySQL for backward compatibility
+
+## Testing
+
+SOAR includes comprehensive test suites for both MySQL and PostgreSQL:
+
+```bash
+# Run all tests
+npm test
+
+# Run MySQL tests only
+npm run test:mysql
+
+# Run PostgreSQL tests only  
+npm run test:postgresql
+
+# Run shared tests
+npm run test:shared
+
+# Quick test
+npm run test:simple
+```
+
+### Setting up Test Environment
+
+#### Using Podman/Docker
+
+**PostgreSQL Test Database:**
+```bash
+npm run start:postgres  # Start PostgreSQL container
+npm run setup:postgres  # Initialize schema and sample data
+npm run test:postgresql # Run PostgreSQL tests
+npm run stop:postgres   # Clean up
+```
+
+**MySQL Test Database:**
+```bash
+npm run start:mysql     # Start MySQL container
+npm run setup:mysql     # Initialize schema and sample data
+npm run test:mysql      # Run MySQL tests
+npm run stop:mysql      # Clean up
+```
+
+## API Reference
+
+### Core Functions
+
+| Function | Description |
+|----------|-------------|
+| `soar.config(options)` | Configure database connections |
+| `soar.query(table, conditions, callback)` | Query single record |
+| `soar.list(table, conditions, callback)` | Query multiple records |
+| `soar.insert(table, data, callback)` | Insert new record |
+| `soar.update(table, data, conditions, callback)` | Update existing records |
+| `soar.del(table, conditions, callback)` | Delete records |
+| `soar.execute(command, data, query, callback)` | Execute SQL expressions |
+| `soar.runSql(sql, parameters, callback)` | Execute raw SQL |
+
+### SQL Expression Functions
+
+| Function | Description |
+|----------|-------------|
+| `soar.sql(table)` | Create SQL expression |
+| `expr.column(columns)` | Specify columns to select |
+| `expr.filter(conditions)` | Add WHERE conditions |
+| `expr.join(joinSpec)` | Add table joins |
+| `expr.extra(clause)` | Add ORDER BY, GROUP BY, etc. |
+
+### Schema Management Functions
+
+| Function | Description |
+|----------|-------------|
+| `soar.createTable(schema, callback)` | Create database table |
+| `soar.alterTable(schema, callback)` | Modify table structure |
+| `soar.deleteTable(tableName, callback)` | Drop table |
+| `soar.describeTable(tableName, callback)` | Get table schema |
+
+### Utility Functions
+
+| Function | Description |
+|----------|-------------|
+| `soar.getConnection(callback)` | Get database connection |
+| `soar.range(page, pageSize)` | Create pagination range |
+
+## Contributing
+
+We welcome contributions! Please see our contributing guidelines and feel free to submit issues and pull requests.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+- **Documentation**: [Full API Documentation](https://github.com/benlue/sql-soar/wiki)
+- **Issues**: [GitHub Issues](https://github.com/benlue/sql-soar/issues)
+- **Wiki**: [SQL-SOAR Wiki](https://github.com/benlue/sql-soar/wiki)
+- **Release Notes**: See [releaseNote.md](./releaseNote.md) for version history
+
+## Related Resources
+
+- [Query Object Documentation](https://github.com/benlue/sql-soar/blob/master/doc/QueryObject.md)
+- [Schema Notation Guide](https://github.com/benlue/sql-soar/blob/master/doc/SchemaNotation.md)
+- [PostgreSQL Support Analysis](./doc/PostgreSQL-Support-Analysis.md)
+- [PostgreSQL Usage Guide](./doc/PostgreSQL-Guide.md)

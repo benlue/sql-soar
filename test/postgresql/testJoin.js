@@ -1,19 +1,18 @@
-/*!
- * sql-soar
- * authors: Ben Lue
- * license: MIT License
- * Copyright(c) 2015 Gocharm Inc.
+/**
+ * sql-soar postgreSQL test cases
+ * @author Ben Lue
+ * @copyright 2023 ~ 2025 Conwell Inc.
  */
 const  assert = require('assert'),
-       path = require('path'),
-       soar = require('../lib/soar.js');
+       soar = require('../../lib/soar.js');
+
+
+before(function() {
+	soar.config({dbConfig: require('./config.json')})
+})
 
 
 describe('Test table joins', function()  {
-
-	before(function() {
-		soar.config();
-	});
 
     it('Simple join', function(done) {
     	var  expr = soar.sql('Person AS psn')
@@ -26,7 +25,7 @@ describe('Test table joins', function()  {
 
     	soar.execute(cmd, query, function(err, data) {
     		//console.log(JSON.stringify(data, null, 4));
-    		assert.equal(data.name, 'John', 'wrong name');
+    		assert.equal(data.name, 'John Doe', 'wrong name');
     		assert.equal(data.latitude, 25.133398, 'wrong latitude');
 
     		done();
@@ -47,7 +46,7 @@ describe('Test table joins', function()  {
 
     	soar.execute(cmd, query, function(err, data) {
     		//console.log(JSON.stringify(data, null, 4));
-    		assert.equal(data.name, 'John', 'wrong name');
+    		assert.equal(data.name, 'John Doe', 'wrong name');
     		assert.equal(data.latitude, 25.133398, 'wrong latitude');
 
     		done();
@@ -55,19 +54,19 @@ describe('Test table joins', function()  {
     });
 
     it('join with auto fill', function(done) {
-        var  expr = soar.sql('Person AS psn')
+        let  expr = soar.sql('Person AS psn')
                         .join({table: 'PsnLoc As pl', onWhat: 'psn.psnID=pl.psnID'})
                         .join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
                         .column(['psn.name', 'geo.latitude']);
 
-        var  cmd = {
-                op: 'list',
-                expr: expr
-             };
+        const  cmd = {
+						op: 'list',
+						expr: expr
+					};
 
         soar.execute(cmd, function(err, list) {
             //console.log( JSON.stringify(list, null, 4) );
-            assert.equal(list.length, 2, '2 entries');
+            assert.equal(list.length, 5, '5 entries');
             done();
         });
     });

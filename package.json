@@ -1,8 +1,10 @@
 {
-  "name": "sql-soar",
-  "version": "1.3.7",
+  "name": "@conwell/sql-soar",
+  "version": "2.1.2",
   "description": "A SQL build and query tool for node.js.",
-  "engines": "8.9.1",
+  "engines": {
+    "node": ">=12"
+  },
   "main": "lib/soar.js",
   "repository": {
     "type": "git",
@@ -11,14 +13,34 @@
   "keywords": [
     "ORM",
     "mySQL",
+    "postgresql",
     "sql"
   ],
   "author": {
-    "name": "Ben Lue, Gocharm Inc."
+    "name": "Ben Lue, Conwell Inc."
   },
   "license": "MIT",
   "readmeFilename": "README.md",
+  "scripts": {
+    "test": "npm run test:mysql && npm run test:postgresql && npm run test:shared",
+    "test:simple": "mocha test/postgresql/testQuery.js --timeout 10000",
+    "test:mysql": "mocha test/mysql/*.js --timeout 10000",
+    "test:postgresql": "mocha test/postgresql/*.js --timeout 10000",
+    "test:shared": "mocha test/shared/**/*.js --timeout 10000",
+    "test:all": "npm run test:mysql && npm run test:postgresql && npm run test:shared",
+    "start:postgres": "podman run -d --name postgres-test -e POSTGRES_DB=soar -e POSTGRES_USER=soaruser -e POSTGRES_PASSWORD=1234soar -p 5432:5432 -v postgres-data:/var/lib/postgresql/data postgres:16",
+    "stop:postgres": "podman stop postgres-test && podman rm postgres-test",
+    "setup:postgres": "podman exec -i postgres-test psql -U soaruser -d soar < test/sampleData/postgresql/schema.sql && podman exec -i postgres-test psql -U soaruser -d soar < test/sampleData/postgresql/sampleData.sql",
+    "start:mysql": "podman run -d --name mysql-test -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=soar -e MYSQL_USER=testuser -e MYSQL_PASSWORD=testpass -p 3306:3306 -v mysql-data:/var/lib/mysql mysql:8.0",
+    "stop:mysql": "podman stop mysql-test && podman rm mysql-test",
+    "setup:mysql": "podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/schema.sql && podman exec -i mysql-test mysql -u testuser -ptestpass soar < test/sampleData/mysql/sampleData.sql"
+  },
+  "devDependencies": {
+    "async": "^3.2.6",
+    "mocha": "^10.2.0"
+  },
   "dependencies": {
-    "mysql": "^2.18.1"
+    "mysql2": "^3.6.0",
+    "pg": "^8.11.3"
   }
 }
