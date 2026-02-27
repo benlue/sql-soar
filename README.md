@@ -396,25 +396,32 @@ try {
 
 ### Direct SQL Execution
 
-When you need to execute raw SQL, SOAR provides the `runSql()` function:
+When you need to execute raw SQL, SOAR provides the `runSql()` function with three calling forms:
 
 ```javascript
-// With parameters (MySQL)
+// Form 1: runSql(sql, params) — uses default database
 const results = await soar.runSql(
-    'SELECT * FROM users WHERE age > ? AND city = ?',
-    [25, 'New York']
+    'SELECT * FROM users WHERE age > ?', [25]
 );
 
-// With parameters (PostgreSQL)
-const results = await soar.runSql(
-    'SELECT * FROM "users" WHERE "age" > $1 AND "city" = $2',
-    [25, 'New York']
-);
-
-// Target a specific database in a multi-DB setup
+// Form 2: runSql(dbAlias, sql, params) — targets a specific database
 const results = await soar.runSql('analytics_db',
     'SELECT COUNT(*) as total FROM users', null
 );
+
+// Form 3: runSql(conn, sql, params) — uses an existing connection (for transactions)
+const conn = await soar.getConnection();
+await conn.beginTransaction();
+try {
+    await soar.runSql(conn, 'UPDATE accounts SET balance = balance - ? WHERE id = ?', [100, 1]);
+    await soar.runSql(conn, 'UPDATE accounts SET balance = balance + ? WHERE id = ?', [100, 2]);
+    await conn.commit();
+} catch (err) {
+    await conn.rollback();
+    throw err;
+} finally {
+    conn.release();
+}
 ```
 
 ### Error Handling and Debugging
@@ -569,7 +576,7 @@ All async functions return Promises.
 | `soar.update(table, data, conditions)` | Update existing records |
 | `soar.del(table, conditions)` | Delete records |
 | `soar.execute(command, data, query)` | Execute SQL expressions |
-| `soar.runSql(sql, parameters)` | Execute raw SQL |
+| `soar.runSql(sql, params)` | Execute raw SQL (also accepts `(dbAlias, sql, params)` or `(conn, sql, params)`) |
 
 ### SQL Expression Functions
 

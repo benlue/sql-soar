@@ -207,14 +207,14 @@ describe('Test sql expression', function()  {
         await soar.execute(cmd, {name: 'John Doe'}, query);
     });
 
-    xit('Insert and delete with transactions', async function() {
+    it('Insert and delete with transactions', async function() {
         var  expr = soar.sql('Person')
                         .column(['psnID', 'name'])
                         .filter( {name: 'psnID', op: '='} );
 
         const  conn = await soar.getConnection();
         try {
-            await conn.query('BEGIN');
+            await conn.beginTransaction();
 
             var  option = {
                     insert: expr,
@@ -229,10 +229,10 @@ describe('Test sql expression', function()  {
             option.delete = expr;
             await soar.execute(option, value);
 
-            await conn.query('COMMIT');
+            await conn.commit();
         }
         catch (e)  {
-            await conn.query('ROLLBACK');
+            await conn.rollback();
             throw e;
         }
         finally  {
@@ -240,13 +240,13 @@ describe('Test sql expression', function()  {
         }
     });
 
-    xit('Insert and delete without specifying table columns', async function() {
+    it('Insert and delete without specifying table columns', async function() {
         var  expr = soar.sql('Person')
                         .filter( {name: 'psnID', op: '='} );
 
         const  conn = await soar.getConnection();
         try {
-            await conn.query('BEGIN');
+            await conn.beginTransaction();
 
             var  option = {
                     op: 'insert',
@@ -261,10 +261,10 @@ describe('Test sql expression', function()  {
             option.op = 'delete';
             await soar.execute(option, value);
 
-            await conn.query('COMMIT');
+            await conn.commit();
         }
         catch (e)  {
-            await conn.query('ROLLBACK');
+            await conn.rollback();
             throw e;
         }
         finally  {
@@ -272,7 +272,7 @@ describe('Test sql expression', function()  {
         }
     });
 
-    xit('Use join expression to do insert & delete', async function() {
+    it('Use join expression to do insert & delete', async function() {
     	var  expr = soar.sql('Person AS psn')
     					.join({table: 'PsnLoc AS pl', onWhat: 'psn.psnID = pl.psnID'})
     					.join({table: 'GeoLoc AS geo', onWhat: 'pl.geID=geo.geID'})
@@ -281,7 +281,7 @@ describe('Test sql expression', function()  {
 
         const  conn = await soar.getConnection();
         try {
-            await conn.query('BEGIN');
+            await conn.beginTransaction();
 
             var  cmd = {
                     op: 'insert',
@@ -297,10 +297,10 @@ describe('Test sql expression', function()  {
             cmd.op = 'delete';
             await soar.execute(cmd, value);
 
-            await conn.query('COMMIT');
+            await conn.commit();
         }
         catch (e)  {
-            await conn.query('ROLLBACK');
+            await conn.rollback();
             throw e;
         }
         finally  {
@@ -339,7 +339,7 @@ describe('Test sql expression', function()  {
 
         const  result = await soar.runSql(sql, p);
         //    console.log(JSON.stringify(result, null, 4));
-        assert.equal(result.rows[0].count, 1, 'one match');
+        assert.equal(result[0].count, 1, 'one match');
     });
 });
 

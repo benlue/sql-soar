@@ -235,7 +235,7 @@ describe('Test sql expression (PGlite in-memory)', function()  {
                p = ['Frank%'];
 
         const  result = await soar.runSql(sql, p);
-        assert.equal(result.rows[0].count, 1, 'one match');
+        assert.equal(result[0].count, 1, 'one match');
     });
 });
 
