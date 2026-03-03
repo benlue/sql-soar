@@ -1,5 +1,10 @@
 # Release Notes
 
+## v3.0.3 — 2026-03-03
+
+- Added `searchPath` and `role` support in PostgreSQL `dbConfig` for multi-tenant schema isolation.
+- `SET search_path` and `SET ROLE` are executed on every connection checkout, ensuring correct behavior with PgBouncer in transaction pooling mode.
+
 ## v3.0.2 — 2026-03-03
 
 - Fixed `DBManager.init()` cleanup: the guard condition was inverted (`=== 0` instead of `> 0`), so old connection pools and schema caches were never cleaned up on re-initialization.
