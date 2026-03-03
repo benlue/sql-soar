@@ -1,6 +1,6 @@
 {
   "name": "@conwell/sql-soar",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A SQL build and query tool for node.js.",
   "engines": {
     "node": ">=14"

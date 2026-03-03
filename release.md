@@ -1,5 +1,11 @@
 # Release Notes
 
+## v3.0.2 — 2026-03-03
+
+- Fixed `DBManager.init()` cleanup: the guard condition was inverted (`=== 0` instead of `> 0`), so old connection pools and schema caches were never cleaned up on re-initialization.
+- Fixed `DBManager.init()` to reset `useDB` and `_dftName` so stale database entries do not persist across re-initialization.
+- Added duplicate-init bypass: `init()` now skips re-initialization when called with the same options as the previous call.
+
 ## v3.0.1 — 2026-02-27
 
 - Fixed schema cache not being invalidated after `alterTable()`, `deleteTable()`, and `renameTable()`, which could cause subsequent queries to use stale schema information.
