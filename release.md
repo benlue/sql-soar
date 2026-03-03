@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.0.4 — 2026-03-03
+
+- Fixed schema operations (`createTable`, `alterTable`, `deleteTable`, `renameTable`, `describeTable`) to use the correct database-specific schema manager per connection, enabling mixed-database setups (e.g., MySQL + PostgreSQL simultaneously).
+
 ## v3.0.3 — 2026-03-03
 
 - Added `searchPath` and `role` support in PostgreSQL `dbConfig` for multi-tenant schema isolation.
