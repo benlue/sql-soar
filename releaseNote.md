@@ -2,6 +2,9 @@
 
 ## What's New
 
+### v3.1.0
+- **ORDER BY Support** — Added `.orderBy()` to the SQL expression API for structured ORDER BY generation. Accepts an array of column specifications: strings for ascending order, or `{column: 'DESC'}` objects for explicit direction. Column names are properly double-quoted for PostgreSQL.
+
 ### v3.0.0
 - **Async/Await API (Breaking Change)** — All exported functions now return Promises instead of using callbacks. This is a breaking change for all callers.
   - `soar.query()`, `soar.list()`, `soar.insert()`, `soar.update()`, `soar.del()`, `soar.execute()`, `soar.runSql()`, `soar.getConnection()`, and all schema management functions are now async

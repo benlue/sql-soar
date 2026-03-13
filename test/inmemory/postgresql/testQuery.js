@@ -230,6 +230,46 @@ describe('Test sql expression (PGlite in-memory)', function()  {
         await soar.execute(option, {name: 'John Doe'}, query);
     });
 
+    it('List with orderBy -- string item (ASC)', async function() {
+        const  expr = soar.sql('Person')
+                          .column(['psnID', 'name', 'age'])
+                          .orderBy(['age']);
+
+        const  cmd = {op: 'list', expr: expr};
+        const  list = await soar.execute(cmd);
+        assert(list.length > 1, 'Should return multiple persons');
+        for (let i = 1; i < list.length; i++)
+            assert(list[i].age >= list[i-1].age, 'Should be ordered by age ASC');
+    });
+
+    it('List with orderBy -- object item (DESC)', async function() {
+        const  expr = soar.sql('Person')
+                          .column(['psnID', 'name', 'age'])
+                          .orderBy([{age: 'DESC'}]);
+
+        const  cmd = {op: 'list', expr: expr};
+        const  list = await soar.execute(cmd);
+        assert(list.length > 1, 'Should return multiple persons');
+        for (let i = 1; i < list.length; i++)
+            assert(list[i].age <= list[i-1].age, 'Should be ordered by age DESC');
+    });
+
+    it('List with orderBy -- mixed string and object', async function() {
+        const  expr = soar.sql('Person')
+                          .column(['psnID', 'name', 'city', 'age'])
+                          .orderBy(['city', {age: 'DESC'}]);
+
+        const  cmd = {op: 'list', expr: expr};
+        const  list = await soar.execute(cmd);
+        assert(list.length > 1, 'Should return multiple persons');
+        for (let i = 1; i < list.length; i++)  {
+            const  cmp = list[i].city.localeCompare(list[i-1].city);
+            assert(cmp >= 0, 'Should be ordered by city ASC first');
+            if (cmp === 0)
+                assert(list[i].age <= list[i-1].age, 'Same city should be ordered by age DESC');
+        }
+    });
+
     it('Run SQL directly', async function() {
         const  sql = 'SELECT COUNT(*) count FROM "Person" WHERE "name" LIKE $1',
                p = ['Frank%'];

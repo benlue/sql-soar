@@ -1,5 +1,12 @@
 # Release Notes
 
+## v3.1.0 — 2026-03-13
+
+- Added `.orderBy()` to the SQL expression API for structured ORDER BY generation, replacing the need to hard-code ORDER BY via `.extra()`.
+- PostgreSQL ORDER BY columns are now properly double-quoted to preserve case.
+- Fixed `describeTable()` for PostgreSQL to filter by `current_schema()`, so tables in non-public schemas are correctly discovered.
+- Fixed `DBManager.init()` to handle non-serializable config options (e.g. pre-created pool instances).
+
 ## v3.0.4 — 2026-03-03
 
 - Fixed schema operations (`createTable`, `alterTable`, `deleteTable`, `renameTable`, `describeTable`) to use the correct database-specific schema manager per connection, enabling mixed-database setups (e.g., MySQL + PostgreSQL simultaneously).
