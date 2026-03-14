@@ -1,5 +1,9 @@
 # Release Notes
 
+## v3.1.1 — 2026-03-14
+
+- Fixed `list` command with paging returning `count` as a string instead of an integer. PostgreSQL's `COUNT(*) OVER()` returns a bigint which the `pg` driver delivers as a string; MySQL's `FOUND_ROWS()` has the same risk with `mysql2`. Both paths now use `parseInt()` to ensure an integer result.
+
 ## v3.1.0 — 2026-03-13
 
 - Added `.orderBy()` to the SQL expression API for structured ORDER BY generation, replacing the need to hard-code ORDER BY via `.extra()`.
